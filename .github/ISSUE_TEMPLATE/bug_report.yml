@@ -1,0 +1,52 @@
+name: "Ошибка / Bug"
+description: "Сообщить о проблеме на сайте или в проекте"
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Опиши проблему без паролей, токенов и персональных данных.
+        После создания задачу можно добавить в Development HQ.
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Что не работает?"
+      description: "Кратко опиши наблюдаемую проблему."
+      placeholder: "Например: мобильное меню перекрывает кнопку связи."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Как воспроизвести?"
+      description: "Последовательность действий, устройство и браузер."
+      placeholder: |
+        1. Открыть сайт на iPhone
+        2. Нажать меню
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Как должно быть?"
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Приоритет для Development HQ"
+      description: "После создания можно вручную указать это же значение в поле Priority на доске."
+      options:
+        - "P0 Critical"
+        - "P1 High"
+        - "P2 Medium"
+        - "P3 Low"
+      default: 2
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "Как проверить исправление?"
+      placeholder: "Какие действия подтвердят, что ошибка устранена?"

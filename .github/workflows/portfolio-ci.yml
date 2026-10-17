@@ -1,0 +1,30 @@
+name: Portfolio CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portfolio-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  portfolio-checks:
+    name: portfolio-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Check page structure, internal links and assets
+        run: python3 scripts/check_portfolio.py
+
+      - name: Check JavaScript syntax
+        run: node --check docs/assets/main.js

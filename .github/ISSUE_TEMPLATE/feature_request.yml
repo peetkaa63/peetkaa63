@@ -1,0 +1,52 @@
+name: "Улучшение / Feature"
+description: "Предложить новую функцию или улучшение"
+title: "[Feature] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Одна задача = один понятный результат. Не размещай здесь секреты или внутреннюю информацию клиентов.
+        После создания задачу можно добавить в Development HQ.
+  - type: textarea
+    id: goal
+    attributes:
+      label: "Какую задачу решаем?"
+      description: "Для кого это нужно и в чём польза?"
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Желаемый результат"
+      description: "Что должно появиться или измениться? Без обязательного технического способа."
+      placeholder: "Добавить..."
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: "Критерии готовности"
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Приоритет для Development HQ"
+      options:
+        - "P0 Critical"
+        - "P1 High"
+        - "P2 Medium"
+        - "P3 Low"
+      default: 2
+    validations:
+      required: true
+  - type: checkboxes
+    id: safeguards
+    attributes:
+      label: "Проверки перед выпуском"
+      options:
+        - label: "Не публиковать реальные секреты, личные данные или неподтверждённые обещания"
+          required: true

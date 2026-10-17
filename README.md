@@ -42,3 +42,17 @@ If you have an idea for a website, web app, Telegram bot or automation, feel fre
 ---
 
 <sub>Based in Moscow · Learning, building and improving real projects.</sub>
+
+### Portfolio development
+
+The portfolio is a static, Russian-language site in `docs/`, published with GitHub Pages from `main` → `/docs`. No build step, API keys, paid services, or runtime dependencies are required. Keep the current Pages source when merging changes.
+
+To preview locally from the repository root:
+
+```sh
+python3 -m http.server 4173 --directory docs
+```
+
+Open `http://localhost:4173`. The site uses relative asset URLs and also works under the GitHub Pages project path `/peetkaa63/`. JavaScript progressively adds the mobile menu, section reveals and Telegram handle copying; navigation and contact links remain usable without it. The system's reduced-motion preference disables animation.
+
+Project images show public login screens from the linked repositories, not client work or authenticated dashboards. See [screenshot sources](docs/assets/projects/README.md) for their origin. Manrope is hosted locally under the [SIL Open Font License](docs/assets/fonts/OFL.txt).

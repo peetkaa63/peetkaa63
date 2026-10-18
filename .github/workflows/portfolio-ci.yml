@@ -26,5 +26,8 @@ jobs:
       - name: Check page structure, internal links and assets
         run: python3 scripts/check_portfolio.py
 
+      - name: Test nested-page and cross-page link checks
+        run: python3 -B -m unittest discover -s scripts -p 'test_*.py'
+
       - name: Check JavaScript syntax
         run: node --check docs/assets/main.js

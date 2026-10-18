@@ -661,3 +661,10 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   .chip-one { transform: rotate(7deg); }
   .chip-two { transform: rotate(-4deg); }
 }
+
+.project-case-link { display: inline-flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 48px; margin-top: 14px; padding: 11px 14px; border: 1px solid #4c587d; border-radius: 10px; background: #222941; color: #d4dcff; font-size: 13px; font-weight: 650; }
+.project-case-link:hover { background: #2b3554; border-color: #8796d8; }
+.project-case-link svg { flex-shrink: 0; }
+@media (max-width: 760px) {
+  html:not(.js-ready) .site-header { position: relative; }
+}

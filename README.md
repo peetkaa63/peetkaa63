@@ -53,6 +53,15 @@ To preview locally from the repository root:
 python3 -m http.server 4173 --directory docs
 ```
 
-Open `http://localhost:4173`. The site uses relative asset URLs and also works under the GitHub Pages project path `/peetkaa63/`. JavaScript progressively adds the mobile menu, section reveals and Telegram handle copying; navigation and contact links remain usable without it. The system's reduced-motion preference disables animation.
+Open `http://localhost:4173`. The site uses relative asset URLs and also works under the GitHub Pages project path `/peetkaa63/`. JavaScript progressively adds the mobile menu, section reveals, active section navigation, a screenshot gallery and copying for the Telegram handle and message template. Navigation, project details and contact guidance remain usable without JavaScript; screenshot links then open the original images. The gallery supports Escape, arrow keys and focus return. Project context is based on each repository's README and keeps team credits explicit.
+
+The system's reduced-motion preference disables animation. The footer also offers a manual motion toggle, saved locally when browser storage is available. No contact data is stored or sent by the portfolio; visitors copy the optional message template and send it through Telegram themselves.
+
+Before opening a Pull Request, run:
+
+```sh
+python3 scripts/check_portfolio.py
+node --check docs/assets/main.js
+```
 
 Project images show public login screens from the linked repositories, not client work or authenticated dashboards. See [screenshot sources](docs/assets/projects/README.md) for their origin. Manrope is hosted locally under the [SIL Open Font License](docs/assets/fonts/OFL.txt).

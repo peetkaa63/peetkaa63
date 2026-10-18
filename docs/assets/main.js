@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  document.documentElement.classList.add('js-ready');
 
   const menuButton = document.querySelector('.menu-toggle');
   const menu = document.querySelector('#mobile-nav');

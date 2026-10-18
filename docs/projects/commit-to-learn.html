@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101113">
+  <meta name="description" content="Commit to Learn — разбор backend командной образовательной платформы: маршруты Express, права доступа и модель данных Prisma / PostgreSQL. Роль Петра Кабанова — Backend Developer.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Commit to Learn — backend-разбор · Пётр Кабанов">
+  <meta property="og:description" content="Командный EdTech-проект: сценарии обучения, путь запроса и модель данных со ссылками на исходники.">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:url" content="https://peetkaa63.github.io/peetkaa63/projects/commit-to-learn.html">
+  <meta property="og:image" content="https://peetkaa63.github.io/peetkaa63/assets/social-cover.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://peetkaa63.github.io/peetkaa63/projects/commit-to-learn.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="preload" href="../assets/fonts/manrope-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <link rel="stylesheet" href="../assets/case-study.css">
+  <script src="../assets/main.js" defer></script>
+  <title>Commit to Learn — backend-разбор · Пётр Кабанов</title>
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к содержимому</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="../index.html#top" aria-label="Пётр Кабанов — главная страница"><span class="brand-mark" aria-hidden="true">pk<span>.</span></span><span class="brand-name">peetkaa63<span>IT-разработчик</span></span></a>
+      <nav class="desktop-nav" aria-label="Разделы кейса"><a href="#architecture">Путь запроса</a><a href="#data">Данные</a><a href="#sources">Исходники</a></nav>
+      <a class="header-contact" href="https://t.me/rove63" target="_blank" rel="noopener noreferrer">На связи <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg><span class="sr-only"> в Telegram, новая вкладка</span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Открыть меню" hidden><span></span><span></span></button>
+    </div>
+    <nav class="mobile-nav container" id="mobile-nav" aria-label="Мобильная навигация по кейсу"><a href="#overview">О проекте <span aria-hidden="true">01</span></a><a href="#architecture">Путь запроса <span aria-hidden="true">02</span></a><a href="#data">Данные <span aria-hidden="true">03</span></a><a href="#sources">Исходники <span aria-hidden="true">04</span></a></nav>
+  </header>
+  <main id="main" class="case-main">
+    <section class="case-overview container" id="overview" aria-labelledby="case-title">
+      <nav class="case-breadcrumb" aria-label="Хлебные крошки"><a href="../index.html#projects">Все проекты</a><span aria-hidden="true">/</span><span aria-current="page">Commit to Learn</span></nav>
+      <div class="case-hero">
+        <div>
+          <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Разбор проекта / EdTech</p>
+          <h1 id="case-title">Commit<br>to Learn<span>.</span></h1>
+          <p class="case-lead">Образовательная платформа, которая связывает курсы, задания и работу студентов с преподавателями.</p>
+          <ul class="case-tags" aria-label="Технологии серверной части"><li>Node.js</li><li>Express</li><li>PostgreSQL</li><li>Prisma</li></ul>
+          <a class="button button-secondary" href="#architecture">Как устроен backend <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"/></svg></a>
+        </div>
+        <div class="case-code-panel">
+          <div class="case-code-bar"><span class="dot" aria-hidden="true"></span><span>POST /api/courses</span><span>Express</span></div>
+          <p class="case-code-label">Фрагмент маршрута из репозитория</p>
+          <pre><code>router.<span class="syntax-accent">post</span>(
+  <span class="syntax-string">'/'</span>,
+  authenticate,
+  requireRole(<span class="syntax-string">'TEACHER'</span>),
+  courseValidators.create,
+  courseController.createCourse
+);</code></pre>
+          <a href="https://github.com/peetkaa63/pcbweb/blob/1131d863b4cdad217886f525ca6fbe192b75d0c6/backend/src/routes/courses.js#L86" target="_blank" rel="noopener noreferrer">Посмотреть этот маршрут в коде<span class="sr-only">, новая вкладка</span></a>
+        </div>
+      </div>
+      <dl class="case-facts"><div><dt>Моя роль в README</dt><dd>Backend Developer</dd></div><div><dt>Формат</dt><dd>Командный проект · fork</dd></div><div><dt>Фокус разбора</dt><dd>API, доступ и данные</dd></div></dl>
+      <div class="case-context reveal">
+        <div><p class="section-kicker">01 / Контекст</p><h2 class="section-title">Один продукт.<br>Две роли.</h2><p>Преподаватель создаёт курс и задания. Студент записывается на курс и отправляет работу. Сервер связывает эти действия с пользователем и проверяет доступ.</p><p class="case-attribution">Моя роль Backend Developer указана в README команды «Сваровски». Ниже — технический разбор проверенной версии командного репозитория.</p></div>
+        <figure class="case-screen"><a href="../assets/projects/learn.webp" target="_blank" rel="noopener noreferrer" aria-label="Открыть оригинал скриншота Commit to Learn, новая вкладка"><img src="../assets/projects/learn.webp" alt="Общедоступный экран входа Commit to Learn с пустой формой" width="1440" height="1000" loading="lazy" decoding="async"></a><figcaption>Экран входа · локальный запуск командного проекта</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="case-section container" id="architecture" aria-labelledby="architecture-title">
+      <div class="section-heading reveal"><div><p class="section-kicker">02 / Путь запроса</p><h2 class="section-title" id="architecture-title">От HTTP-запроса<br>до записи в базе.</h2></div><p class="section-intro">На примере создания курса: маршрут, проверки, контроллер и доступ к данным. Схема следует вызовам в исходниках.</p></div>
+      <ol class="request-flow">
+        <li class="reveal"><span class="flow-number">01 / Вход</span><h3>Маршрут Express</h3><p><code>POST /api/courses</code> подключает аутентификацию, проверку роли преподавателя и валидаторы полей.</p></li>
+        <li class="reveal"><span class="flow-number">02 / Обработка</span><h3>Контроллер</h3><p><code>createCourse</code> проверяет результат валидации, берёт данные из запроса и связывает курс с текущим преподавателем.</p></li>
+        <li class="reveal"><span class="flow-number">03 / Доступ к данным</span><h3>Репозиторий</h3><p>Вызов <code>courseRepository.create</code> использует общий <code>BaseRepository</code> для создания записи через Prisma.</p></li>
+        <li class="reveal"><span class="flow-number">04 / Хранение</span><h3>Prisma + PostgreSQL</h3><p>Модель <code>Course</code> задаёт поля и связи курса. После успешного создания контроллер возвращает ответ <code>201</code>.</p></li>
+      </ol>
+      <div class="case-note reveal"><span class="case-note-icon" aria-hidden="true">{ }</span><div><h3>Роль пользователя — часть сценария</h3><p>В маршрутах курса создание доступно роли <code>TEACHER</code>, а самостоятельная запись — <code>STUDENT</code>. При чтении курса контроллер проверяет запись студента или принадлежность курса преподавателю.</p></div></div>
+    </section>
+
+    <section class="case-section container" id="data" aria-labelledby="data-title">
+      <div class="section-heading reveal"><div><p class="section-kicker">03 / Модель данных</p><h2 class="section-title" id="data-title">Учебный процесс<br>в связях данных.</h2></div><p class="section-intro">Основные сущности из Prisma-схемы. Описания помогают прочитать структуру проекта без запуска серверной части.</p></div>
+      <dl class="entity-grid">
+        <div class="reveal"><dt><code>User</code><span>Пользователь</span></dt><dd>Студент или преподаватель. Роль определяет доступные действия; пользователь связан с курсами и отправленными работами.</dd></div>
+        <div class="reveal"><dt><code>Course</code><span>Курс</span></dt><dd>Принадлежит преподавателю и объединяет материалы, задания и записи студентов на обучение.</dd></div>
+        <div class="reveal"><dt><code>CourseEnrollment</code><span>Запись на курс</span></dt><dd>Связывает студента с курсом. Для пары «студент — курс» в схеме задано ограничение уникальности.</dd></div>
+        <div class="reveal"><dt><code>Assignment</code><span>Задание</span></dt><dd>Связано с курсом, содержит описание, срок сдачи и максимальный балл. Объединяет отправленные работы.</dd></div>
+        <div class="reveal"><dt><code>Submission</code><span>Работа студента</span></dt><dd>Связана со студентом и заданием. Хранит ссылку на файл и статус; может иметь оценку, комментарии и версии.</dd></div>
+        <div class="entity-source reveal"><dt>Связи в коде<span>Источник модели</span></dt><dd><p>Полная схема содержит и другие сущности: материалы, оценки, тесты и группы.</p><a href="https://github.com/peetkaa63/pcbweb/blob/1131d863b4cdad217886f525ca6fbe192b75d0c6/backend/prisma/schema.prisma" target="_blank" rel="noopener noreferrer">Открыть Prisma-схему<span class="sr-only">, новая вкладка</span></a></dd></div>
+      </dl>
+    </section>
+
+    <section class="case-section container" id="sources" aria-labelledby="sources-title">
+      <div class="section-heading reveal"><div><p class="section-kicker">04 / Исходники и команда</p><h2 class="section-title" id="sources-title">Разбор, который<br>можно проверить.</h2></div><p class="section-intro">Ссылки закреплены на версии <code>1131d86</code>. Технические описания относятся к исходникам этой версии; работа развёрнутого приложения здесь не оценивается.</p></div>
+      <div class="source-grid">
+        <a class="source-card reveal" href="https://github.com/peetkaa63/pcbweb/blob/1131d863b4cdad217886f525ca6fbe192b75d0c6/README.md" target="_blank" rel="noopener noreferrer"><span>01 / Команда и роль</span><h3>README проекта</h3><p>Пётр Кабанов — Backend Developer. Савва Бартеньев — Full Stack Developer. Дарья Петрова — Frontend Developer.</p><span class="source-action">Открыть на GitHub<span class="sr-only">, новая вкладка</span></span></a>
+        <a class="source-card reveal" href="https://github.com/peetkaa63/pcbweb/blob/1131d863b4cdad217886f525ca6fbe192b75d0c6/backend/src/routes/courses.js" target="_blank" rel="noopener noreferrer"><span>02 / Контракт API</span><h3>Маршруты курса</h3><p>Методы и пути запросов, проверка роли, валидаторы и подключение контроллера.</p><span class="source-action">Открыть на GitHub<span class="sr-only">, новая вкладка</span></span></a>
+        <a class="source-card reveal" href="https://github.com/peetkaa63/pcbweb/blob/1131d863b4cdad217886f525ca6fbe192b75d0c6/backend/src/controllers/courseController.js" target="_blank" rel="noopener noreferrer"><span>03 / Логика обработки</span><h3>Контроллер курса</h3><p>Валидация, проверки доступа, обращения к репозиторию и формирование HTTP-ответа.</p><span class="source-action">Открыть на GitHub<span class="sr-only">, новая вкладка</span></span></a>
+        <a class="source-card reveal" href="https://github.com/peetkaa63/pcbweb/blob/1131d863b4cdad217886f525ca6fbe192b75d0c6/backend/src/repositories/baseRepository.js" target="_blank" rel="noopener noreferrer"><span>04 / Работа с данными</span><h3>Базовый репозиторий</h3><p>Общие операции с моделями Prisma, используемые репозиториями проекта.</p><span class="source-action">Открыть на GitHub<span class="sr-only">, новая вкладка</span></span></a>
+      </div>
+      <div class="case-contact reveal"><div><h2>Есть похожая задача?</h2><p>Расскажите о своём веб-приложении или API. Обсудим, с чего начать.</p></div><a class="button button-primary" href="https://t.me/rove63" target="_blank" rel="noopener noreferrer">Написать в Telegram<span class="sr-only">, новая вкладка</span></a></div>
+      <a class="case-return" href="../index.html#projects">Вернуться ко всем проектам</a>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="container footer-inner"><span>© 2026 Пётр Кабанов</span><div class="footer-links"><button class="motion-toggle" type="button" aria-pressed="false" hidden>Без анимации</button><a href="../index.html">Главная</a><a href="#overview">В начало кейса</a></div></div></footer>
+</body>
+</html>

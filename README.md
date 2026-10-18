@@ -65,3 +65,7 @@ node --check docs/assets/main.js
 ```
 
 Project images show public login screens from the linked repositories, not client work or authenticated dashboards. See [screenshot sources](docs/assets/projects/README.md) for their origin. Manrope is hosted locally under the [SIL Open Font License](docs/assets/fonts/OFL.txt).
+
+The [Commit to Learn case study](docs/projects/commit-to-learn.html) explains the documented backend role, a verified request path and the data model. Source links are pinned to the reviewed commit. The page describes the team codebase without attributing individual modules to a person or claiming a production result.
+
+`scripts/check_portfolio.py` validates every HTML file under `docs/`, including links between pages. Its regression tests run with `python3 -B -m unittest discover -s scripts -p 'test_*.py'` and are included in Portfolio CI.

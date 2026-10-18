@@ -38,7 +38,7 @@ class SiteParser(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.ids = set()
-        self.fragments = []
+        self.anchors = []
         self.refs = []
         self.titles = 0
         self.mains = 0
@@ -65,8 +65,8 @@ class SiteParser(HTMLParser):
             href = attrs.get("href", "")
             if not href:
                 report("Anchor without href")
-            elif href.startswith("#"):
-                self.fragments.append(href[1:])
+            else:
+                self.anchors.append(href)
             if attrs.get("target") == "_blank":
                 rel = set((attrs.get("rel") or "").split())
                 if "noopener" not in rel:
@@ -82,25 +82,38 @@ class SiteParser(HTMLParser):
 
 
 def main():
+    errors.clear()
     if not INDEX.is_file():
         report("docs/index.html not found")
-    else:
+    pages = {}
+    for path in sorted(DOCS.rglob("*.html")):
         parser = SiteParser()
-        parser.feed(INDEX.read_text(encoding="utf-8"))
+        parser.feed(path.read_text(encoding="utf-8"))
         parser.close()
+        pages[path.resolve()] = parser
+        label = str(path.relative_to(DOCS))
         if not parser.lang:
-            report("Missing html lang")
+            report(f"{label}: missing html lang")
         if parser.titles != 1:
-            report(f"Expected one <title>, found {parser.titles}")
+            report(f"{label}: expected one <title>, found {parser.titles}")
         if parser.mains != 1:
-            report(f"Expected one <main>, found {parser.mains}")
+            report(f"{label}: expected one <main>, found {parser.mains}")
         if not parser.description:
-            report("Missing meta description")
-        for fragment in parser.fragments:
-            if fragment and fragment not in parser.ids:
-                report(f"Broken internal anchor: #{fragment}")
+            report(f"{label}: missing meta description")
         for url in parser.refs:
-            check_local_path(url, INDEX)
+            check_local_path(url, path)
+
+    # Resolve fragments after all pages have been parsed, including links back
+    # from a nested case page to a section on the homepage.
+    for path, parser in pages.items():
+        for href in parser.anchors:
+            parsed = urlsplit(href)
+            if parsed.scheme or parsed.netloc or not parsed.fragment:
+                continue
+            target = (path.parent / unquote(parsed.path)).resolve() if parsed.path else path
+            target_page = pages.get(target)
+            if target_page and unquote(parsed.fragment) not in target_page.ids:
+                report(f"{path.relative_to(DOCS.resolve())}: broken internal anchor: {href}")
 
     # Check files referenced by url(...) in CSS, including web fonts.
     for css in DOCS.rglob("*.css"):
@@ -113,7 +126,7 @@ def main():
         for error in errors:
             print(f"  - {error}")
         return 1
-    print("Portfolio checks passed: HTML structure, anchors, local assets, link safety, CSS assets")
+    print(f"Portfolio checks passed: {len(pages)} HTML pages, anchors, local assets, link safety, CSS assets")
     return 0
 
 

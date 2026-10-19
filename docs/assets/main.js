@@ -94,14 +94,61 @@
       if (!feedback) return;
       copyButton.hidden = false;
       copyButton.addEventListener('click', async () => {
+        const copiedText = copyButton.dataset.copy;
         try {
-          await navigator.clipboard.writeText(copyButton.dataset.copy);
-          feedback.textContent = copyButton.dataset.success;
+          await navigator.clipboard.writeText(copiedText);
+          feedback.textContent = copyButton.dataset.copy === copiedText
+            ? copyButton.dataset.success
+            : 'Сообщение изменилось. Скопируйте актуальный текст.';
         } catch {
-          feedback.textContent = copyButton.dataset.copy === '@rove63'
+          feedback.textContent = copyButton.dataset.error || (copiedText === '@rove63'
             ? 'Скопируйте имя вручную: @rove63'
-            : 'Копирование недоступно. Используйте пункты выше как шаблон.';
+            : 'Копирование недоступно. Используйте пункты выше как шаблон.');
+          const fallback = document.getElementById(copyButton.dataset.copyFallback);
+          fallback?.focus();
+          fallback?.select();
         }
+      });
+    });
+  }
+
+  const briefBuilder = document.querySelector('.brief-builder');
+  const briefCopy = document.querySelector('.brief-copy');
+  const briefMessage = document.getElementById('brief-message');
+  const briefType = document.getElementById('brief-type');
+  if (briefBuilder && briefCopy && briefMessage && briefType) {
+    const fields = [...briefBuilder.querySelectorAll('[data-brief-label]')];
+    const briefDetails = briefBuilder.closest('details');
+    const emptyTemplate = briefCopy.dataset.copy;
+    const feedback = document.getElementById(briefCopy.dataset.feedback);
+    const updateBrief = () => {
+      const lines = fields.flatMap((field) => {
+        const value = field instanceof HTMLSelectElement
+          ? (field.value ? field.selectedOptions[0].textContent : '')
+          : field.value.trim();
+        return value ? [`${field.dataset.briefLabel}: ${value}`] : [];
+      });
+      const message = lines.length
+        ? `Здравствуйте, Пётр! Хочу обсудить проект.\n\n${lines.join('\n')}`
+        : emptyTemplate;
+      briefMessage.value = message;
+      briefCopy.dataset.copy = message;
+      if (feedback) feedback.textContent = '';
+    };
+    briefBuilder.addEventListener('input', updateBrief);
+    briefBuilder.addEventListener('change', updateBrief);
+    updateBrief();
+    briefBuilder.hidden = false;
+    briefDetails.classList.add('brief-interactive');
+    document.querySelector('.brief-instructions').hidden = true;
+    briefCopy.textContent = 'Скопировать сообщение';
+    briefCopy.dataset.success = 'Сообщение скопировано. Можно отправить его в Telegram.';
+    document.querySelectorAll('[data-brief-type]').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+        briefType.value = link.dataset.briefType;
+        briefDetails.open = true;
+        updateBrief();
       });
     });
   }

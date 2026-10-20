@@ -55,18 +55,76 @@
             <a class="button button-secondary" href="#projects">Смотреть работы <span class="arrow" aria-hidden="true"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"/></svg></span></a>
           </div>
         </div>
-        <div class="hero-art" aria-hidden="true">
-          <div class="art-glow"></div>
-          <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
-          <div class="code-sculpture">
-            <div class="sculpture-bar"><span class="sculpture-dots"><i></i><i></i><i></i></span><span class="sculpture-label">build something meaningful</span></div>
-            <div class="code-glyph">&lt;<span>/</span>&gt;</div>
-            <div class="code-line"><span>idea</span><i></i><span>code</span><i></i><span>product</span></div>
-          </div>
-          <div class="art-chip chip-one"><span class="dot"></span>hello, world_</div>
-          <div class="art-chip chip-two">{ web · bots · automation }</div>
-          <span class="art-caption">CREATIVE THINKING. PRACTICAL CODE.</span>
-        </div>
+        <aside class="backend-console" aria-labelledby="backend-title">
+          <div class="backend-console-top"><span class="backend-eyebrow"><span aria-hidden="true">&lt;/&gt;</span> Внутри проекта</span><span class="backend-version">1131d86</span></div>
+          <h2 id="backend-title">Commit to Learn</h2>
+          <p class="backend-subtitle">Командный проект · путь создания курса</p>
+          <div class="backend-endpoint"><span>POST</span><code>/api/courses</code><span class="backend-endpoint-label">Express → PostgreSQL</span></div>
+          <fieldset class="backend-explorer">
+            <legend class="sr-only">Этап запроса. Выберите этап, чтобы прочитать код и пояснение.</legend>
+            <input class="sr-only backend-choice" type="radio" name="backend-stage" id="backend-route" aria-controls="backend-panel-route" checked>
+            <label for="backend-route"><span>01</span>Маршрут</label>
+            <input class="sr-only backend-choice" type="radio" name="backend-stage" id="backend-access" aria-controls="backend-panel-access">
+            <label for="backend-access"><span>02</span>Доступ</label>
+            <input class="sr-only backend-choice" type="radio" name="backend-stage" id="backend-controller" aria-controls="backend-panel-controller">
+            <label for="backend-controller"><span>03</span>Логика</label>
+            <input class="sr-only backend-choice" type="radio" name="backend-stage" id="backend-data" aria-controls="backend-panel-data">
+            <label for="backend-data"><span>04</span>Данные</label>
+            <div class="backend-panels">
+              <div class="backend-panel" id="backend-panel-route">
+                <div class="backend-file"><span aria-hidden="true">JS</span>routes/courses.js</div>
+                <pre><code>router.<span class="backend-code-call">post</span>(
+  <span class="backend-code-string">'/'</span>,
+  authenticate,
+  requireRole(<span class="backend-code-string">'TEACHER'</span>),
+  courseValidators.create,
+  courseController.createCourse
+);</code></pre>
+                <h3>Сначала — маршрут</h3>
+                <p>Express связывает запрос с проверками пользователя, роли и полей, затем вызывает контроллер.</p>
+                <a class="backend-source" href="https://github.com/peetkaa63/pcbweb/blob/1131d863b4cdad217886f525ca6fbe192b75d0c6/backend/src/routes/courses.js#L86" target="_blank" rel="noopener noreferrer">Фрагмент в исходниках <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg><span class="sr-only">, новая вкладка</span></a>
+              </div>
+              <div class="backend-panel" id="backend-panel-access">
+                <div class="backend-file"><span aria-hidden="true">JS</span>middleware/auth.js</div>
+                <pre><code><span class="backend-code-keyword">if</span> (!roles.includes(req.user.role)) {
+  <span class="backend-code-keyword">return</span> res.status(<span class="backend-code-number">403</span>).json({
+    error: <span class="backend-code-string">'Insufficient permissions'</span>
+  });
+}
+
+next();</code></pre>
+                <h3>Роль проверяется на сервере</h3>
+                <p>Маршрут требует роль TEACHER. Middleware возвращает 403, если роль пользователя не подходит.</p>
+                <a class="backend-source" href="https://github.com/peetkaa63/pcbweb/blob/1131d863b4cdad217886f525ca6fbe192b75d0c6/backend/src/middleware/auth.js#L29" target="_blank" rel="noopener noreferrer">Фрагмент в исходниках <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg><span class="sr-only">, новая вкладка</span></a>
+              </div>
+              <div class="backend-panel" id="backend-panel-controller">
+                <div class="backend-file"><span aria-hidden="true">JS</span>controllers/courseController.js</div>
+                <pre><code><span class="backend-code-keyword">const</span> errors = validationResult(req);
+<span class="backend-code-keyword">if</span> (!errors.isEmpty()) {
+  <span class="backend-code-keyword">return</span> res.status(<span class="backend-code-number">400</span>).json({
+    errors: errors.array()
+  });
+}</code></pre>
+                <h3>Проверка перед записью</h3>
+                <p>Контроллер проверяет результат валидации. При ошибках возвращает 400; иначе передаёт данные репозиторию.</p>
+                <a class="backend-source" href="https://github.com/peetkaa63/pcbweb/blob/1131d863b4cdad217886f525ca6fbe192b75d0c6/backend/src/controllers/courseController.js#L117" target="_blank" rel="noopener noreferrer">Фрагмент в исходниках <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg><span class="sr-only">, новая вкладка</span></a>
+              </div>
+              <div class="backend-panel" id="backend-panel-data">
+                <div class="backend-file"><span aria-hidden="true">JS</span>repositories/baseRepository.js</div>
+                <pre><code><span class="backend-code-keyword">async</span> create(data, include = {}) {
+  <span class="backend-code-keyword">return</span> <span class="backend-code-keyword">this</span>.prisma[<span class="backend-code-keyword">this</span>.model].<span class="backend-code-call">create</span>({
+    data,
+    include
+  });
+}</code></pre>
+                <h3>Запись — через Prisma</h3>
+                <p>Репозиторий курса использует общий метод create. После успешного создания контроллер возвращает 201.</p>
+                <a class="backend-source" href="https://github.com/peetkaa63/pcbweb/blob/1131d863b4cdad217886f525ca6fbe192b75d0c6/backend/src/repositories/baseRepository.js#L62" target="_blank" rel="noopener noreferrer">Фрагмент в исходниках <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg><span class="sr-only">, новая вкладка</span></a>
+              </div>
+            </div>
+          </fieldset>
+          <a class="backend-case-link" href="./projects/commit-to-learn.html">Весь разбор backend <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></a>
+        </aside>
       </section>
       <div class="hero-bottom"><span class="hero-location">Москва, Россия <span aria-hidden="true">·</span> Работаю онлайн</span><a class="scroll-hint" href="#projects">Листайте ниже <span aria-hidden="true"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"/></svg></span></a></div>
     </div>

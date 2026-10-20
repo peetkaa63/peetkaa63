@@ -55,6 +55,8 @@ python3 -m http.server 4173 --directory docs
 
 Open `http://localhost:4173`. The site uses relative asset URLs and also works under the GitHub Pages project path `/peetkaa63/`. JavaScript progressively adds the mobile menu, section reveals, active section navigation, a screenshot gallery and copying for the Telegram handle and message template. Navigation, project details and contact guidance remain usable without JavaScript; screenshot links then open the original images. The gallery supports Escape, arrow keys and focus return. Project context is based on each repository's README and keeps team credits explicit.
 
+The homepage introduces the real Commit to Learn request path with a four-stage code explorer. Native radio controls switch between pinned source excerpts using CSS, including without JavaScript; arrow keys change the selected stage. It is a reading aid for the team codebase, not a running API demo.
+
 The system's reduced-motion preference disables animation. The footer also offers a manual motion toggle, saved locally when browser storage is available. The optional contact brief builds a message from the selected service and any details the visitor enters. Service links preselect a format and open the brief. Input is kept only in the current page; it is not persisted, sent to a server, or added to the Telegram URL. Visitors copy the message (or select the preview manually) and send it themselves. Without JavaScript, the contact guide and direct Telegram links remain available.
 
 Before opening a Pull Request, run:

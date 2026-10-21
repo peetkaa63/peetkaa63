@@ -57,6 +57,8 @@ Open `http://localhost:4173`. The site uses relative asset URLs and also works u
 
 The homepage introduces the real Commit to Learn request path with a four-stage code explorer. Native radio controls switch between pinned source excerpts using CSS, including without JavaScript; arrow keys change the selected stage. It is a reading aid for the team codebase, not a running API demo.
 
+A header button switches between the original dark theme and a light palette on both pages. Only the light/dark preference is saved under `portfolio-theme` in localStorage. A small local head script restores it before paint and keeps open tabs and restored pages in sync. Storage errors do not prevent switching in the current page. Without JavaScript the original dark theme remains available.
+
 The system's reduced-motion preference disables animation. The footer also offers a manual motion toggle, saved locally when browser storage is available. The optional contact brief builds a message from the selected service and any details the visitor enters. Service links preselect a format and open the brief. Input is kept only in the current page; it is not persisted, sent to a server, or added to the Telegram URL. Visitors copy the message (or select the preview manually) and send it themselves. Without JavaScript, the contact guide and direct Telegram links remain available.
 
 Before opening a Pull Request, run:
@@ -64,6 +66,7 @@ Before opening a Pull Request, run:
 ```sh
 python3 scripts/check_portfolio.py
 node --check docs/assets/main.js
+node --check docs/assets/theme.js
 ```
 
 Project images show public login screens from the linked repositories, not client work or authenticated dashboards. See [screenshot sources](docs/assets/projects/README.md) for their origin. Manrope is hosted locally under the [SIL Open Font License](docs/assets/fonts/OFL.txt).

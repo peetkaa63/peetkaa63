@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,8 +15,10 @@
   <link rel="canonical" href="https://peetkaa63.github.io/peetkaa63/projects/commit-to-learn.html">
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
   <link rel="preload" href="../assets/fonts/manrope-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <script src="../assets/theme.js"></script>
   <link rel="stylesheet" href="../assets/styles.css">
   <link rel="stylesheet" href="../assets/case-study.css">
+  <link rel="stylesheet" href="../assets/themes.css">
   <script src="../assets/main.js" defer></script>
   <title>Commit to Learn — backend-разбор · Пётр Кабанов</title>
 </head>
@@ -27,6 +29,10 @@
       <a class="brand" href="../index.html#top" aria-label="Пётр Кабанов — главная страница"><span class="brand-mark" aria-hidden="true">pk<span>.</span></span><span class="brand-name">peetkaa63<span>IT-разработчик</span></span></a>
       <nav class="desktop-nav" aria-label="Разделы кейса"><a href="#architecture">Путь запроса</a><a href="#data">Данные</a><a href="#sources">Исходники</a></nav>
       <a class="header-contact" href="https://t.me/rove63" target="_blank" rel="noopener noreferrer">На связи <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg><span class="sr-only"> в Telegram, новая вкладка</span></a>
+      <button class="theme-toggle" type="button" aria-label="Включить светлую тему" title="Включить светлую тему" hidden>
+        <svg class="theme-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+        <svg class="theme-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 13.2A8.7 8.7 0 0 1 10.8 3.5a8.7 8.7 0 1 0 9.7 9.7Z"/></svg>
+      </button>
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Открыть меню" hidden><span></span><span></span></button>
     </div>
     <nav class="mobile-nav container" id="mobile-nav" aria-label="Мобильная навигация по кейсу"><a href="#overview">О проекте <span aria-hidden="true">01</span></a><a href="#architecture">Путь запроса <span aria-hidden="true">02</span></a><a href="#data">Данные <span aria-hidden="true">03</span></a><a href="#sources">Исходники <span aria-hidden="true">04</span></a></nav>

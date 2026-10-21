@@ -30,4 +30,6 @@ jobs:
         run: python3 -B -m unittest discover -s scripts -p 'test_*.py'
 
       - name: Check JavaScript syntax
-        run: node --check docs/assets/main.js
+        run: |
+          node --check docs/assets/main.js
+          node --check docs/assets/theme.js

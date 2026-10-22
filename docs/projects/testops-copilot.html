@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101113">
+  <meta name="description" content="TestOps Copilot — разбор командного AI/QA-проекта: путь запроса через FastAPI, фоновая генерация Celery, статусы задачи и хранение файлов тестов.">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="TestOps Copilot — от запроса до тест-кейса · Пётр Кабанов">
+  <meta property="og:description" content="Как устроена фоновая генерация тестов: React, FastAPI, Celery и хранение результатов. Разбор со ссылками на исходники.">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:url" content="https://peetkaa63.github.io/peetkaa63/projects/testops-copilot.html">
+  <meta property="og:image" content="https://peetkaa63.github.io/peetkaa63/assets/social-cover.png">
+  <meta property="og:image:alt" content="Пётр Кабанов — IT-разработчик. Код, который решает задачи.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://peetkaa63.github.io/peetkaa63/projects/testops-copilot.html">
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="preload" href="../assets/fonts/manrope-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <script src="../assets/theme.js"></script>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <link rel="stylesheet" href="../assets/case-study.css">
+  <link rel="stylesheet" href="../assets/themes.css">
+  <script src="../assets/main.js" defer></script>
+  <title>TestOps Copilot — от запроса до тест-кейса · Пётр Кабанов</title>
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к содержимому</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="../index.html#top" aria-label="Пётр Кабанов — главная страница"><span class="brand-mark" aria-hidden="true">pk<span>.</span></span><span class="brand-name">peetkaa63<span>IT-разработчик</span></span></a>
+      <nav class="desktop-nav" aria-label="Разделы кейса"><a href="#architecture">Путь задачи</a><a href="#states">Статусы</a><a href="#sources">Исходники</a></nav>
+      <a class="header-contact" href="https://t.me/rove63" target="_blank" rel="noopener noreferrer">На связи <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg><span class="sr-only"> в Telegram, новая вкладка</span></a>
+      <button class="theme-toggle" type="button" aria-label="Включить светлую тему" title="Включить светлую тему" hidden>
+        <svg class="theme-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+        <svg class="theme-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 13.2A8.7 8.7 0 0 1 10.8 3.5a8.7 8.7 0 1 0 9.7 9.7Z"/></svg>
+      </button>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Открыть меню" hidden><span></span><span></span></button>
+    </div>
+    <nav class="mobile-nav container" id="mobile-nav" aria-label="Мобильная навигация по кейсу"><a href="#overview">О проекте <span aria-hidden="true">01</span></a><a href="#architecture">Путь задачи <span aria-hidden="true">02</span></a><a href="#states">Статусы <span aria-hidden="true">03</span></a><a href="#sources">Исходники <span aria-hidden="true">04</span></a></nav>
+  </header>
+  <main id="main" class="case-main">
+    <section class="case-overview container" id="overview" aria-labelledby="case-title">
+      <nav class="case-breadcrumb" aria-label="Хлебные крошки"><a href="../index.html#projects">Все проекты</a><span aria-hidden="true">/</span><span aria-current="page">TestOps Copilot</span></nav>
+      <div class="case-hero">
+        <div>
+          <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Разбор проекта / AI &amp; QA</p>
+          <h1 id="case-title">TestOps<br>Copilot<span>.</span></h1>
+          <p class="case-lead">От описания проверки до фоновой задачи. Как API, очередь и хранение результатов связаны в командном QA-проекте.</p>
+          <ul class="case-tags" aria-label="Технологии проекта"><li>React</li><li>FastAPI</li><li>Celery</li><li>PostgreSQL</li></ul>
+          <a class="button button-secondary" href="#architecture">Проследить путь задачи <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"/></svg></a>
+        </div>
+        <div class="case-code-panel">
+          <div class="case-code-bar"><span class="dot" aria-hidden="true"></span><span>generateTestCase(request)</span><span>TypeScript</span></div>
+          <p class="case-code-label">Вызов API из frontend · форматирование адаптировано</p>
+          <pre><code>const response = await apiClient.<span class="syntax-accent">post</span>(
+  <span class="syntax-string">'/api/v1/generate/test-case'</span>,
+  request
+)
+return response.data</code></pre>
+          <a href="https://github.com/peetkaa63/TestOps-Copilot/blob/005db456da6225d6044f4d9a22c85c9ac68334c1/frontend/dashboard/src/api/testGeneration.ts#L15" target="_blank" rel="noopener noreferrer">Открыть этот вызов в исходниках<span class="sr-only">, новая вкладка</span></a>
+        </div>
+      </div>
+      <dl class="case-facts"><div><dt>Формат</dt><dd>Командный проект · fork</dd></div><div><dt>Фокус разбора</dt><dd>API, очередь и результаты</dd></div><div><dt>Версия исходников</dt><dd><code>005db45</code></dd></div></dl>
+      <div class="case-context reveal">
+        <div><p class="section-kicker">01 / Контекст</p><h2 class="section-title">Долгая задача.<br>Понятный статус.</h2><p>QA-инженер описывает проверку и выбирает тип теста. В контракте запроса предусмотрены <code>manual</code>, <code>api</code> и <code>ui</code>, а также приоритет и контекст задачи.</p><p>API возвращает идентификатор фоновой задачи. Её выполнение, прогресс и сохранённые файлы представлены отдельными частями системы.</p><p class="case-attribution">Технические пояснения относятся к командной кодовой базе из моего форка. Все ссылки в разборе закреплены на одной версии исходников.</p></div>
+        <figure class="case-screen"><a href="../assets/projects/testops.webp" target="_blank" rel="noopener noreferrer" aria-label="Открыть оригинал скриншота TestOps Copilot, новая вкладка"><img src="../assets/projects/testops.webp" alt="Общедоступный экран входа TestOps Copilot с пустой формой авторизации" width="1440" height="1000" loading="lazy" decoding="async"></a><figcaption>Экран входа · локальный запуск командного проекта</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="case-section container" id="architecture" aria-labelledby="architecture-title">
+      <div class="section-heading reveal"><div><p class="section-kicker">02 / Путь задачи</p><h2 class="section-title" id="architecture-title">Запрос принят.<br>Работа — в очереди.</h2></div><p class="section-intro">Один сценарий из исходников: постановка задачи генерации тест-кейса. Каждый этап связан со своим участком кода.</p></div>
+      <ol class="request-flow task-flow">
+        <li class="reveal"><span class="flow-number">01 / Интерфейс</span><h3>React dashboard</h3><p>Функция <code>generateTestCase</code> отправляет описание и параметры теста через API-клиент.</p><a class="case-inline-source" href="https://github.com/peetkaa63/TestOps-Copilot/blob/005db456da6225d6044f4d9a22c85c9ac68334c1/frontend/dashboard/src/api/testGeneration.ts#L15" target="_blank" rel="noopener noreferrer">Вызов из frontend<span class="sr-only">, новая вкладка</span></a></li>
+        <li class="reveal"><span class="flow-number">02 / Вход в систему</span><h3>Integration Gateway</h3><p>Маршрут <code>/generate/test-case</code> передаёт тело запроса и заголовки в Core Agent через <code>httpx</code>.</p><a class="case-inline-source" href="https://github.com/peetkaa63/TestOps-Copilot/blob/005db456da6225d6044f4d9a22c85c9ac68334c1/backend/integration_gateway/app/api/v1/endpoints/gateway.py#L19" target="_blank" rel="noopener noreferrer">Маршрут gateway<span class="sr-only">, новая вкладка</span></a></li>
+        <li class="reveal"><span class="flow-number">03 / Постановка</span><h3>FastAPI → Celery</h3><p>Core Agent проверяет приоритет, вызывает <code>generate_test_case_task.delay</code>, сохраняет метаданные и возвращает <code>task_id</code> со статусом <code>pending</code>.</p><a class="case-inline-source" href="https://github.com/peetkaa63/TestOps-Copilot/blob/005db456da6225d6044f4d9a22c85c9ac68334c1/backend/core_agent_service/app/api/v1/endpoints/test_generation.py#L40" target="_blank" rel="noopener noreferrer">Создание задачи<span class="sr-only">, новая вкладка</span></a></li>
+        <li class="reveal"><span class="flow-number">04 / Выполнение</span><h3>Фоновый worker</h3><p>Задача готовит промпт, обращается к LLM-клиенту и обновляет прогресс. Чтение статуса вынесено в отдельный API-метод.</p><a class="case-inline-source" href="https://github.com/peetkaa63/TestOps-Copilot/blob/005db456da6225d6044f4d9a22c85c9ac68334c1/backend/core_agent_service/app/tasks/test_generation.py#L121" target="_blank" rel="noopener noreferrer">Логика генерации<span class="sr-only">, новая вкладка</span></a></li>
+      </ol>
+      <div class="case-note reveal"><span class="case-note-icon" aria-hidden="true">{ }</span><div><h3>Идентификатор связывает запрос и результат</h3><p>Ответ на создание содержит <code>task_id</code>. Метод <code>GET /api/v1/tasks/{task_id}</code> читает состояние Celery и формирует ответ с полями <code>status</code>, <code>result</code>, <code>error</code> и <code>progress</code>.</p></div></div>
+    </section>
+
+    <section class="case-section container" id="states" aria-labelledby="states-title">
+      <div class="section-heading reveal"><div><p class="section-kicker">03 / Обратная связь</p><h2 class="section-title" id="states-title">Видно, что<br>происходит.</h2></div><p class="section-intro">Четыре состояния из обработчика статуса. Это описание контракта API по коду — состояние реальной задачи здесь не отображается.</p></div>
+      <dl class="task-states">
+        <div class="reveal"><dt><code class="task-state" data-state="pending">pending</code><span>Ожидает выполнения</span></dt><dd>Для состояния Celery <code>PENDING</code> обработчик проверяет наличие записи задачи в базе.</dd></div>
+        <div class="reveal"><dt><code class="task-state" data-state="progress">in_progress</code><span>Выполняется</span></dt><dd><code>PROGRESS</code> преобразуется в ответ с текущим шагом, общим числом шагов, процентом и сообщением.</dd></div>
+        <div class="reveal"><dt><code class="task-state" data-state="completed">completed</code><span>Результат готов</span></dt><dd>При <code>SUCCESS</code> ответ содержит сериализованный результат и прогресс 100%.</dd></div>
+        <div class="reveal"><dt><code class="task-state" data-state="failed">failed</code><span>Возникла ошибка</span></dt><dd>При <code>FAILURE</code> обработчик извлекает описание ошибки и возвращает его в поле <code>error</code>.</dd></div>
+      </dl>
+      <a class="case-inline-source" href="https://github.com/peetkaa63/TestOps-Copilot/blob/005db456da6225d6044f4d9a22c85c9ac68334c1/backend/core_agent_service/app/api/v1/endpoints/tasks.py#L206" target="_blank" rel="noopener noreferrer">Как формируются статусы в коде<span class="sr-only">, новая вкладка</span></a>
+    </section>
+
+    <section class="case-section container" id="results" aria-labelledby="results-title">
+      <div class="section-heading reveal"><div><p class="section-kicker">04 / Результаты</p><h2 class="section-title" id="results-title">Статус задачи.<br>Файлы отдельно.</h2></div><p class="section-intro">В исходниках разделены результат Celery, запись истории и содержимое сгенерированных файлов.</p></div>
+      <dl class="entity-grid">
+        <div class="reveal"><dt><code>TaskRecord</code><span>История задачи</span></dt><dd>Хранит идентификатор, описание, тип теста, приоритет и статус. Отдельные поля предусмотрены для ошибки и сообщения о прогрессе.</dd></div>
+        <div class="reveal"><dt><code>TaskArtifact</code><span>Содержимое файлов</span></dt><dd>Связан с записью задачи. Модель содержит имя файла, описание и текст результата; при чтении статуса обработчик пытается сохранить полученные артефакты.</dd></div>
+        <div class="entity-source reveal"><dt>Чтение файлов<span>Отдельный метод Core Agent</span></dt><dd><p><code>GET /api/v1/tasks/{task_id}/artifacts</code> возвращает сохранённые файлы из базы, обращаясь к <code>TaskRecord</code> и <code>TaskArtifact</code>.</p><a href="https://github.com/peetkaa63/TestOps-Copilot/blob/005db456da6225d6044f4d9a22c85c9ac68334c1/backend/core_agent_service/app/api/v1/endpoints/tasks.py#L357" target="_blank" rel="noopener noreferrer">Открыть обработчик<span class="sr-only">, новая вкладка</span></a></dd></div>
+      </dl>
+    </section>
+
+    <section class="case-section container" id="sources" aria-labelledby="sources-title">
+      <div class="section-heading reveal"><div><p class="section-kicker">05 / Исходники</p><h2 class="section-title" id="sources-title">От пояснения<br>к конкретному коду.</h2></div><p class="section-intro">Срез <code>005db45</code>. Разбор описывает устройство исходников; качество AI-генерации и работа развёрнутого сервиса здесь не оцениваются.</p></div>
+      <div class="source-grid">
+        <a class="source-card reveal" href="https://github.com/peetkaa63/TestOps-Copilot/blob/005db456da6225d6044f4d9a22c85c9ac68334c1/README.md" target="_blank" rel="noopener noreferrer"><span>01 / Контекст</span><h3>Документация проекта</h3><p>Назначение QA-ассистента, состав сервисов и технологический стек командного проекта.</p><span class="source-action">README на GitHub<span class="sr-only">, новая вкладка</span></span></a>
+        <a class="source-card reveal" href="https://github.com/peetkaa63/TestOps-Copilot/blob/005db456da6225d6044f4d9a22c85c9ac68334c1/backend/core_agent_service/app/api/v1/endpoints/test_generation.py" target="_blank" rel="noopener noreferrer"><span>02 / Контракт</span><h3>Создание задачи</h3><p>Поля запроса, проверка приоритета, вызов Celery и сохранение метаданных.</p><span class="source-action">Обработчик FastAPI<span class="sr-only">, новая вкладка</span></span></a>
+        <a class="source-card reveal" href="https://github.com/peetkaa63/TestOps-Copilot/blob/005db456da6225d6044f4d9a22c85c9ac68334c1/backend/core_agent_service/app/api/v1/endpoints/tasks.py" target="_blank" rel="noopener noreferrer"><span>03 / Обратная связь</span><h3>Статусы и артефакты</h3><p>Чтение состояния Celery, сохранение снимка результата и выдача файлов задачи.</p><span class="source-action">Методы работы с задачами<span class="sr-only">, новая вкладка</span></span></a>
+        <a class="source-card reveal" href="https://github.com/peetkaa63/TestOps-Copilot/blob/005db456da6225d6044f4d9a22c85c9ac68334c1/backend/core_agent_service/app/models/task.py" target="_blank" rel="noopener noreferrer"><span>04 / Данные</span><h3>Модели SQLAlchemy</h3><p>Поля истории задачи, содержимое артефактов и связь между ними.</p><span class="source-action">Модели хранения<span class="sr-only">, новая вкладка</span></span></a>
+      </div>
+      <div class="case-contact reveal"><div><h2>Есть задача для автоматизации?</h2><p>Начните с описания процесса. Короткий бриф поможет собрать детали.</p></div><a class="button button-primary" href="../index.html#project-brief">Обсудить задачу <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></a></div>
+      <nav class="case-related" aria-label="Другой разбор проекта"><a href="./commit-to-learn.html"><span class="case-related-label">Следующий проект / EdTech</span><strong>Commit to Learn <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></strong><span>Express, права доступа и модель данных</span></a></nav>
+      <a class="case-return" href="../index.html#projects">Вернуться ко всем проектам</a>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="container footer-inner"><span>© 2026 Пётр Кабанов</span><div class="footer-links"><button class="motion-toggle" type="button" aria-pressed="false" hidden>Без анимации</button><a href="../index.html">Главная</a><a href="#overview">В начало кейса</a></div></div></footer>
+</body>
+</html>

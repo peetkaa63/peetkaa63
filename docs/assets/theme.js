@@ -3,10 +3,12 @@
   const root = document.documentElement;
   const storageKey = 'portfolio-theme';
   let currentTheme = 'dark';
+  let unsavedTheme = null;
 
   const readTheme = () => {
+    if (unsavedTheme) return unsavedTheme;
     try { return localStorage.getItem(storageKey) === 'light' ? 'light' : 'dark'; }
-    catch { return 'dark'; }
+    catch { return currentTheme; }
   };
   const applyTheme = (theme) => {
     currentTheme = theme;
@@ -30,7 +32,10 @@
     button.hidden = false;
     button.addEventListener('click', () => {
       applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
-      try { localStorage.setItem(storageKey, currentTheme); } catch {}
+      try {
+        localStorage.setItem(storageKey, currentTheme);
+        unsavedTheme = null;
+      } catch { unsavedTheme = currentTheme; }
     });
   });
   // Keep cached pages and other open portfolio tabs in sync with the saved choice.

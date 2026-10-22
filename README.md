@@ -74,3 +74,15 @@ Project images show public login screens from the linked repositories, not clien
 The [Commit to Learn case study](docs/projects/commit-to-learn.html) explains the documented backend role, a verified request path and the data model. Source links are pinned to the reviewed commit. The page describes the team codebase without attributing individual modules to a person or claiming a production result.
 
 `scripts/check_portfolio.py` validates every HTML file under `docs/`, including links between pages. Its regression tests run with `python3 -B -m unittest discover -s scripts -p 'test_*.py'` and are included in Portfolio CI.
+
+The homepage's “Обсудить проект” button opens the contact brief. Service links preselect the format and focus the task field while preserving entered details. The direct `#project-brief` link also opens the brief with JavaScript; without it, the same link reaches the native disclosure and contact guide. Section navigation transfers keyboard focus to the destination. A theme selected when browser storage is blocked remains active when the current page is restored.
+
+Browser checks run in a separate Portfolio CI job, covering both pages at 320, 390, 760 and 1440 pixels, both themes, keyboard navigation, the gallery, brief generation, clipboard fallback, blocked storage and the no-JavaScript version. To run them locally:
+
+```sh
+python3 -m pip install -r tests/browser/requirements.txt
+python3 -m playwright install chromium
+python3 -B -m unittest discover -s tests/browser -p 'test_*.py' -v
+```
+
+The test suite starts a temporary local server; no application backend or external service is required. To use an existing Chromium installation, set `PORTFOLIO_CHROMIUM` to its executable path for the test command. Browser test packages are development dependencies only; the published site still has no runtime dependencies.

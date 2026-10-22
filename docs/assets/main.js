@@ -6,6 +6,27 @@
   const menu = document.querySelector('#mobile-nav');
   const mobile = window.matchMedia('(max-width: 760px)');
 
+  const isPlainClick = (event) => event.button === 0 &&
+    !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey;
+  const focusTarget = (target) => {
+    if (!target) return;
+    if (!target.matches('a, button, input, select, textarea, summary, [tabindex]')) {
+      target.setAttribute('tabindex', '-1');
+      target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
+    }
+    target.focus({ preventScroll: true });
+  };
+
+  // Native fragment navigation scrolls; also move keyboard focus into the section.
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href^="#"]');
+    if (!link || !isPlainClick(event) || event.defaultPrevented) return;
+    let target;
+    try { target = document.getElementById(decodeURIComponent(link.hash.slice(1))); } catch { return; }
+    if (!target) return;
+    requestAnimationFrame(() => focusTarget(target));
+  });
+
   if (menuButton && menu) {
     menuButton.hidden = false;
     menu.hidden = true;
@@ -143,12 +164,22 @@
     document.querySelector('.brief-instructions').hidden = true;
     briefCopy.textContent = 'Скопировать сообщение';
     briefCopy.dataset.success = 'Сообщение скопировано. Можно отправить его в Telegram.';
-    document.querySelectorAll('[data-brief-type]').forEach((link) => {
+    const openBriefFromHash = () => {
+      if (window.location.hash === '#project-brief') briefDetails.open = true;
+    };
+    openBriefFromHash();
+    window.addEventListener('hashchange', openBriefFromHash);
+    document.querySelectorAll('[data-brief-type], [data-open-brief]').forEach((link) => {
       link.addEventListener('click', (event) => {
-        if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-        briefType.value = link.dataset.briefType;
+        if (!isPlainClick(event)) return;
+        // Handle this fragment here so generic navigation doesn't refocus the summary.
+        event.preventDefault();
+        if (link.dataset.briefType) briefType.value = link.dataset.briefType;
         briefDetails.open = true;
         updateBrief();
+        if (window.location.hash !== link.hash) window.location.hash = link.hash;
+        document.getElementById('project-brief').scrollIntoView({ block: 'start' });
+        document.getElementById('brief-goal').focus({ preventScroll: true });
       });
     });
   }

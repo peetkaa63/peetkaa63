@@ -10,6 +10,7 @@ import unittest
 from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[2]
+PAGES = tuple(path.relative_to(ROOT / 'docs').as_posix() for path in sorted((ROOT / 'docs').rglob('*.html')))
 
 
 class QuietHandler(SimpleHTTPRequestHandler):
@@ -59,7 +60,7 @@ class PortfolioBrowserChecks(unittest.TestCase):
         failures = []
         self.page.on('response', lambda response: failures.append(response.url) if response.status >= 400 else None)
         for width in (320, 390, 760, 1440):
-            for path in ('', 'projects/commit-to-learn.html'):
+            for path in PAGES:
                 with self.subTest(width=width, path=path):
                     self.page.set_viewport_size({'width': width, 'height': 1000})
                     self.visit(path)
@@ -72,6 +73,37 @@ class PortfolioBrowserChecks(unittest.TestCase):
                         expect(image).to_have_js_property('complete', True)
                     self.assertTrue(self.page.evaluate('Array.from(document.images).every(img => !img.getAttribute("src") || img.naturalWidth > 0)'))
         self.assertEqual(failures, [])
+
+    def test_testops_case_is_reachable_and_links_to_related_work(self):
+        self.visit()
+        self.page.locator('.project-case-link[href="./projects/testops-copilot.html"]').focus()
+        self.page.keyboard.press('Enter')
+        expect(self.page.locator('h1')).to_have_text('TestOpsCopilot.')
+        self.page.locator('.desktop-nav a[href="#architecture"]').click()
+        expect(self.page.locator('#architecture')).to_be_focused()
+        expect(self.page.locator('#architecture .request-flow li')).to_have_count(4)
+        self.page.locator('.case-related a').click()
+        expect(self.page).to_have_url(self.base + 'projects/commit-to-learn.html')
+        self.page.locator('.case-related a').click()
+        expect(self.page).to_have_url(self.base + 'projects/testops-copilot.html')
+        self.page.locator('.case-contact .button').click()
+        expect(self.page).to_have_url(self.base + 'index.html#project-brief')
+        expect(self.page.locator('.brief-builder')).to_be_visible()
+
+    def test_testops_mobile_navigation_and_static_content_without_javascript(self):
+        context = self.browser.new_context(java_script_enabled=False, viewport={'width': 390, 'height': 844}, reduced_motion='reduce')
+        try:
+            page = context.new_page()
+            page.goto(self.base + 'projects/testops-copilot.html')
+            page.locator('#mobile-nav a[href="#states"]').click()
+            expect(page.locator('.task-states dt')).to_have_count(4)
+            expect(page.locator('.task-state[data-state="completed"]')).to_have_text('completed')
+            expect(page.locator('.task-states')).to_be_visible()
+            page.locator('.case-return').click()
+            expect(page).to_have_url(self.base + 'index.html#projects')
+            expect(page.locator('#projects')).to_be_visible()
+        finally:
+            context.close()
 
     def test_hero_opens_brief_and_focuses_task(self):
         self.visit()

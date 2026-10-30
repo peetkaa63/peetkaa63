@@ -59,7 +59,7 @@ The homepage introduces the real Commit to Learn request path with a four-stage 
 
 A header button switches between the original dark theme and a light palette on every page. Only the light/dark preference is saved under `portfolio-theme` in localStorage. A small local head script restores it before paint and keeps open tabs and restored pages in sync. Storage errors do not prevent switching in the current page. Without JavaScript the original dark theme remains available.
 
-The system's reduced-motion preference disables animation. The footer also offers a manual motion toggle, saved locally when browser storage is available. The optional contact brief builds a message from the selected service and any details the visitor enters. Service links preselect a format and open the brief. Input is kept only in the current page; it is not persisted, sent to a server, or added to the Telegram URL. Visitors copy the message (or select the preview manually) and send it themselves. Without JavaScript, the contact guide and direct Telegram links remain available.
+The system's reduced-motion preference disables animation. The footer also offers a manual motion toggle, saved locally when browser storage is available. The head script restores that choice before the first animation; changes sync between open tabs and restored pages. The optional contact brief builds a message from the selected service and any details the visitor enters. Service links preselect a format, open the brief and keep the focused task field visible on short screens. Restored form values refresh the message on `pageshow`. Input is kept only in the current page; it is not persisted, sent to a server, or added to the Telegram URL. Visitors copy the message (or select the preview manually) and send it themselves. Without JavaScript, the contact guide and direct Telegram links remain available.
 
 Before opening a Pull Request, run:
 
@@ -75,16 +75,19 @@ The [Commit to Learn case study](docs/projects/commit-to-learn.html) explains th
 
 The [TestOps Copilot case study](docs/projects/testops-copilot.html) follows the generation request from the frontend through the gateway and Core Agent into Celery. It explains status responses and the TaskRecord / TaskArtifact storage model, with links pinned to source commit `005db456da6225d6044f4d9a22c85c9ac68334c1`. It describes the team codebase; runtime availability and AI output quality were not evaluated. The reused login screenshot has its own source version documented in `docs/assets/projects/README.md`. Both case studies link to each other, and the TestOps case links back to the contact brief.
 
-`scripts/check_portfolio.py` validates every HTML file under `docs/`, including links between pages. Its regression tests run with `python3 -B -m unittest discover -s scripts -p 'test_*.py'` and are included in Portfolio CI.
+`scripts/check_portfolio.py` validates every HTML file under `docs/`, including links between pages, directory/query links, one primary heading, nonempty titles and the targets of labels and ARIA references. It also checks `docs/sitemap.xml` against the canonical URLs of all pages. The sitemap can be submitted to search engines at `https://peetkaa63.github.io/peetkaa63/sitemap.xml`. Its regression tests run with `python3 -B -m unittest discover -s scripts -p 'test_*.py'` and are included in Portfolio CI.
 
 The homepage's “Обсудить проект” button opens the contact brief. Service links preselect the format and focus the task field while preserving entered details. The direct `#project-brief` link also opens the brief with JavaScript; without it, the same link reaches the native disclosure and contact guide. Section navigation transfers keyboard focus to the destination. A theme selected when browser storage is blocked remains active when the current page is restored.
 
-Browser checks run in a separate Portfolio CI job, discovering every HTML page under `docs/` and checking them at 320, 390, 760 and 1440 pixels in both themes. They also cover keyboard navigation, the gallery, brief generation, clipboard fallback, blocked storage, case navigation and the no-JavaScript version. To run them locally:
+Browser checks discover every HTML page under `docs/` and check them at 320, 390, 760 and 1440 pixels in both themes. They also cover short/landscape screens, keyboard navigation, the gallery, brief generation, clipboard races/fallback, blocked storage, restored pages, case navigation, privacy and the no-JavaScript version. axe-core checks WCAG 2 A/AA, 2.1 AA, 2.2 AA and best-practice rules in both themes, with the brief and gallery open as well. To run them locally:
 
 ```sh
 python3 -m pip install -r tests/browser/requirements.txt
+npm ci --prefix tests/browser --ignore-scripts --no-audit --no-fund
 python3 -m playwright install chromium
 python3 -B -m unittest discover -s tests/browser -p 'test_*.py' -v
 ```
 
 The test suite starts a temporary local server; no application backend or external service is required. To use an existing Chromium installation, set `PORTFOLIO_CHROMIUM` to its executable path for the test command. Browser test packages are development dependencies only; the published site still has no runtime dependencies.
+
+CI preserves the `browser-checks` Chromium job and adds separate Firefox and WebKit jobs. For another engine locally, install it with `python3 -m playwright install --with-deps firefox` (or `webkit`) and set `PORTFOLIO_BROWSER=firefox` for the unittest command. When `PORTFOLIO_ARTIFACTS` points to a directory, failed scenarios save screenshots; CI uploads those as artifacts. See [the audit report](AUDIT.md) for the scope, reproduced bugs, fixes and limits of verification.

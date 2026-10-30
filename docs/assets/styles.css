@@ -504,8 +504,8 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   .desktop-nav { display: none; }
   .header-contact { min-height: 44px; padding: 10px 15px; font-size: 12px; }
   .menu-toggle { display: inline-flex; }
-  .mobile-nav { display: grid; gap: 2px; padding-top: 6px; padding-bottom: 18px; }
-  .mobile-nav a { display: flex; align-items: center; min-height: 48px; padding: 11px 15px; border-radius: 9px; color: #c0c3ce; font-size: 14px; font-weight: 600; }
+  .mobile-nav { display: grid; gap: 2px; max-height: calc(100svh - 74px); overflow-y: auto; overscroll-behavior: contain; padding-top: 6px; padding-bottom: 18px; }
+  .mobile-nav a { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 48px; padding: 11px 15px; border-radius: 9px; color: #c0c3ce; font-size: 14px; font-weight: 600; }
   .mobile-nav a:hover, .mobile-nav a:focus-visible { background: var(--surface-raised); color: var(--text); }
   .hero { grid-template-columns: minmax(0, 1fr); gap: 36px; padding-top: 62px; padding-bottom: 22px; }
   .hero-label { margin-bottom: 24px; font-size: 10px; letter-spacing: .09em; }
@@ -642,4 +642,8 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
 .project-case-link svg { flex-shrink: 0; }
 @media (max-width: 760px) {
   html:not(.js-ready) .site-header { position: relative; }
+  html:not(.js-ready) .mobile-nav { max-height: none; overflow: visible; }
 }
+
+/* Focused brief fields remain clear of the sticky header on short screens. */
+.brief-field :is(input, textarea, select) { scroll-margin-block: 100px 20px; }

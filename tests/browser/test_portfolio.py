@@ -5,6 +5,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Thread
 import os
+import json
 import unittest
 
 from playwright.sync_api import expect, sync_playwright
@@ -28,9 +29,10 @@ class PortfolioBrowserChecks(unittest.TestCase):
         cls.base = f'http://127.0.0.1:{cls.server.server_port}/docs/'
         cls.playwright = sync_playwright().start()
         options = {'headless': True}
-        if os.environ.get('PORTFOLIO_CHROMIUM'):
+        engine = os.environ.get('PORTFOLIO_BROWSER', 'chromium')
+        if engine == 'chromium' and os.environ.get('PORTFOLIO_CHROMIUM'):
             options['executable_path'] = os.environ['PORTFOLIO_CHROMIUM']
-        cls.browser = cls.playwright.chromium.launch(**options)
+        cls.browser = getattr(cls.playwright, engine).launch(**options)
 
     @classmethod
     def tearDownClass(cls):
@@ -47,6 +49,12 @@ class PortfolioBrowserChecks(unittest.TestCase):
         self.page.on('pageerror', lambda error: self.errors.append(str(error)))
 
     def tearDown(self):
+        artifact_folder = os.environ.get('PORTFOLIO_ARTIFACTS')
+        result = self._outcome.result
+        if artifact_folder and any(test is self for test, _ in result.errors + result.failures):
+            folder = Path(artifact_folder)
+            folder.mkdir(parents=True, exist_ok=True)
+            self.page.screenshot(path=str(folder / (self._testMethodName + '.png')), full_page=True)
         self.context.close()
         self.assertEqual(self.errors, [], 'Unexpected browser errors')
 
@@ -55,6 +63,119 @@ class PortfolioBrowserChecks(unittest.TestCase):
 
     def assert_no_overflow(self):
         self.assertFalse(self.page.evaluate('document.documentElement.scrollWidth > innerWidth'))
+
+    def assert_accessible(self):
+        self.page.add_script_tag(path=str(ROOT / 'tests/browser/node_modules/axe-core/axe.min.js'))
+        violations = self.page.evaluate('''async () => {
+            const result = await axe.run(document, {
+                runOnly: {type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa', 'best-practice']}
+            });
+            return result.violations.map(v => ({id: v.id, impact: v.impact,
+                nodes: v.nodes.map(n => ({target: n.target, reason: n.failureSummary}))}));
+        }''')
+        self.assertEqual(violations, [], json.dumps(violations, ensure_ascii=False, indent=2))
+
+    def test_accessibility_in_both_themes_and_dynamic_states(self):
+        for width in (390, 1440):
+            for path in PAGES:
+                for theme in ('dark', 'light'):
+                    with self.subTest(width=width, path=path, theme=theme):
+                        self.page.set_viewport_size({'width': width, 'height': 900})
+                        self.visit(path)
+                        if self.page.locator('html').get_attribute('data-theme') != theme:
+                            self.page.locator('.theme-toggle').click()
+                        if path == 'index.html':
+                            self.page.locator('[data-open-brief]').click()
+                        self.assert_accessible()
+                        if path == 'index.html' and width == 390:
+                            self.page.locator('.project-media').first.click()
+                            self.assert_accessible()
+
+    def test_brief_task_field_is_visible_on_short_screen(self):
+        self.page.set_viewport_size({'width': 390, 'height': 320})
+        for preference in ('reduce', 'no-preference'):
+            with self.subTest(motion=preference):
+                self.page.emulate_media(reduced_motion=preference)
+                self.visit()
+                self.page.locator('[data-open-brief]').click()
+                expect(self.page.locator('#brief-goal')).to_be_focused()
+                self.assertTrue(self.page.locator('#brief-goal').evaluate('el => {const r=el.getBoundingClientRect(); return r.top >= 74 && r.bottom <= innerHeight;}'))
+
+    def test_mobile_menu_scrolls_in_landscape(self):
+        self.page.set_viewport_size({'width': 390, 'height': 240})
+        self.visit()
+        self.page.locator('.menu-toggle').click()
+        self.page.locator('#mobile-nav a').last.scroll_into_view_if_needed()
+        self.assertTrue(self.page.locator('#mobile-nav a').last.evaluate('el => el.getBoundingClientRect().bottom <= innerHeight'))
+        self.page.locator('#mobile-nav a').last.click()
+        expect(self.page.locator('#contact')).to_be_focused()
+
+    def test_modified_menu_link_does_not_hide_current_navigation(self):
+        self.page.set_viewport_size({'width': 390, 'height': 844})
+        self.visit()
+        self.page.locator('.menu-toggle').click()
+        self.page.locator('#mobile-nav a').first.click(modifiers=['ControlOrMeta'])
+        expect(self.page.locator('#mobile-nav')).to_be_visible()
+        expect(self.page.locator('.menu-toggle')).to_have_attribute('aria-expanded', 'true')
+
+    def test_saved_motion_is_applied_without_main_script(self):
+        self.page.emulate_media(reduced_motion='no-preference')
+        self.page.add_init_script('localStorage.setItem("portfolio-reduced-motion", "true")')
+        self.page.route('**/assets/main.js', lambda route: route.abort())
+        self.visit()
+        self.assertEqual(self.page.locator('.hero-title').evaluate('el => getComputedStyle(el).animationName'), 'none')
+
+    def test_motion_preference_syncs_across_tabs_and_restored_pages(self):
+        self.page.emulate_media(reduced_motion='no-preference')
+        self.visit()
+        other = self.context.new_page()
+        other.emulate_media(reduced_motion='no-preference')
+        other.goto(self.base + 'projects/testops-copilot.html')
+        other.locator('.motion-toggle').click()
+        expect(self.page.locator('.motion-toggle')).to_have_attribute('aria-pressed', 'true')
+        other.locator('.motion-toggle').click()
+        expect(self.page.locator('.motion-toggle')).to_have_attribute('aria-pressed', 'false')
+        self.page.evaluate('localStorage.setItem("portfolio-reduced-motion", "true"); window.dispatchEvent(new PageTransitionEvent("pageshow", {persisted: true}))')
+        expect(self.page.locator('.motion-toggle')).to_have_attribute('aria-pressed', 'true')
+
+    def test_restored_fields_refresh_the_message(self):
+        self.visit('#project-brief')
+        self.page.evaluate('document.getElementById("brief-goal").value="Восстановленная задача"; window.dispatchEvent(new PageTransitionEvent("pageshow", {persisted: true}))')
+        self.assertIn('Восстановленная задача', self.page.locator('#brief-message').input_value())
+
+    def test_newer_clipboard_attempt_owns_the_feedback(self):
+        self.page.add_init_script('''
+            window.copyResolvers = [];
+            Object.defineProperty(navigator, 'clipboard', {value: {
+                writeText: () => new Promise(resolve => window.copyResolvers.push(resolve))
+            }});
+        ''')
+        self.visit('#project-brief')
+        self.page.locator('#brief-goal').fill('Первый текст')
+        self.page.locator('.brief-copy').click()
+        self.page.locator('#brief-goal').fill('Второй текст')
+        self.page.locator('.brief-copy').click()
+        self.page.evaluate('window.copyResolvers[1]()')
+        expect(self.page.locator('#brief-feedback')).to_contain_text('Сообщение скопировано')
+        self.page.evaluate('window.copyResolvers[0]()')
+        expect(self.page.locator('#brief-feedback')).to_contain_text('Сообщение скопировано')
+
+    def test_active_case_navigation_survives_unlisted_section(self):
+        self.visit('projects/testops-copilot.html')
+        self.page.locator('#results').evaluate('el => el.scrollIntoView({block: "start"})')
+        expect(self.page.locator('.desktop-nav a[href="#states"]')).to_have_attribute('aria-current', 'location')
+
+    def test_brief_text_is_not_executed_persisted_or_sent(self):
+        outgoing = []
+        self.page.on('request', lambda request: outgoing.append({'url': request.url, 'body': request.post_data or ''}))
+        self.visit('#project-brief')
+        marker = '<img src=x onerror="window.injected=true">PRIVATE-AUDIT-TEXT'
+        self.page.locator('#brief-goal').fill(marker)
+        self.assertIn(marker, self.page.locator('#brief-message').input_value())
+        self.assertFalse(self.page.evaluate('Boolean(window.injected)'))
+        self.assertNotIn('PRIVATE-AUDIT-TEXT', self.page.evaluate('JSON.stringify(localStorage) + JSON.stringify(sessionStorage)'))
+        self.assertNotIn('PRIVATE-AUDIT-TEXT', json.dumps(outgoing))
+        self.assertEqual(self.page.locator('.brief-telegram').get_attribute('href'), 'https://t.me/rove63')
 
     def test_layout_and_assets_in_both_themes(self):
         failures = []

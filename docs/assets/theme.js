@@ -2,6 +2,8 @@
   'use strict';
   const root = document.documentElement;
   const storageKey = 'portfolio-theme';
+  // Restore the manual motion choice before CSS can animate the first frame.
+  try { root.classList.toggle('reduce-motion', localStorage.getItem('portfolio-reduced-motion') === 'true'); } catch {}
   let currentTheme = 'dark';
   let unsavedTheme = null;
 

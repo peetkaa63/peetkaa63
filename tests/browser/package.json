@@ -1,0 +1,8 @@
+{
+  "name": "portfolio-browser-audit",
+  "private": true,
+  "description": "Development-only accessibility checks for the static portfolio",
+  "devDependencies": {
+    "axe-core": "4.10.3"
+  }
+}

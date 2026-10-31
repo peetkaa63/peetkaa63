@@ -45,7 +45,7 @@
       menuButton.setAttribute('aria-label', isOpen ? 'Открыть меню' : 'Закрыть меню');
     });
     menu.addEventListener('click', (event) => {
-      if (event.target.closest('a')) closeMenu();
+      if (isPlainClick(event) && event.target.closest('a')) closeMenu();
     });
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && !menu.hidden) closeMenu(true);
@@ -62,6 +62,7 @@
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const motionButton = document.querySelector('.motion-toggle');
   let manualReducedMotion = false;
+  let unsavedMotion = false;
   try { manualReducedMotion = localStorage.getItem('portfolio-reduced-motion') === 'true'; } catch {}
   const reveals = document.querySelectorAll('.reveal');
   let observer;
@@ -103,25 +104,42 @@
   };
   motionButton?.addEventListener('click', () => {
     manualReducedMotion = !manualReducedMotion;
-    try { localStorage.setItem('portfolio-reduced-motion', String(manualReducedMotion)); } catch {}
+    try {
+      localStorage.setItem('portfolio-reduced-motion', String(manualReducedMotion));
+      unsavedMotion = false;
+    } catch { unsavedMotion = true; }
     applyMotionPreference();
   });
   applyMotionPreference();
   reducedMotion.addEventListener('change', applyMotionPreference);
+  const restoreMotionPreference = () => {
+    if (!unsavedMotion) {
+      try { manualReducedMotion = localStorage.getItem('portfolio-reduced-motion') === 'true'; } catch {}
+    }
+    applyMotionPreference();
+  };
+  window.addEventListener('pageshow', restoreMotionPreference);
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'portfolio-reduced-motion' || event.key === null) restoreMotionPreference();
+  });
 
   if (window.isSecureContext && navigator.clipboard?.writeText) {
     document.querySelectorAll('[data-copy]').forEach((copyButton) => {
       const feedback = document.getElementById(copyButton.dataset.feedback);
       if (!feedback) return;
       copyButton.hidden = false;
+      let copyAttempt = 0;
       copyButton.addEventListener('click', async () => {
+        const attempt = ++copyAttempt;
         const copiedText = copyButton.dataset.copy;
         try {
           await navigator.clipboard.writeText(copiedText);
+          if (attempt !== copyAttempt) return;
           feedback.textContent = copyButton.dataset.copy === copiedText
             ? copyButton.dataset.success
             : 'Сообщение изменилось. Скопируйте актуальный текст.';
         } catch {
+          if (attempt !== copyAttempt) return;
           feedback.textContent = copyButton.dataset.error || (copiedText === '@rove63'
             ? 'Скопируйте имя вручную: @rove63'
             : 'Копирование недоступно. Используйте пункты выше как шаблон.');
@@ -158,6 +176,8 @@
     };
     briefBuilder.addEventListener('input', updateBrief);
     briefBuilder.addEventListener('change', updateBrief);
+    // Browsers may restore form values after deferred scripts have initialized.
+    window.addEventListener('pageshow', updateBrief);
     updateBrief();
     briefBuilder.hidden = false;
     briefDetails.classList.add('brief-interactive');
@@ -179,7 +199,13 @@
         updateBrief();
         if (window.location.hash !== link.hash) window.location.hash = link.hash;
         document.getElementById('project-brief').scrollIntoView({ block: 'start' });
-        document.getElementById('brief-goal').focus({ preventScroll: true });
+        const goal = document.getElementById('brief-goal');
+        goal.focus({ preventScroll: true });
+        const bounds = goal.getBoundingClientRect();
+        const headerBottom = document.querySelector('.site-header')?.getBoundingClientRect().bottom || 0;
+        if (bounds.top < headerBottom || bounds.bottom > window.innerHeight) {
+          goal.scrollIntoView({ block: 'center', behavior: 'instant' });
+        }
       });
     });
   }
@@ -237,8 +263,9 @@
   }
 
   const header = document.querySelector('.site-header');
-  const sections = [...document.querySelectorAll('main > section[id]')];
   const navLinks = [...document.querySelectorAll('.desktop-nav a, .mobile-nav a')];
+  const sections = [...document.querySelectorAll('main > section[id]')]
+    .filter((section) => navLinks.some((link) => link.hash === `#${section.id}`));
   let scrollPending = false;
   const updateScroll = () => {
     scrollPending = false;

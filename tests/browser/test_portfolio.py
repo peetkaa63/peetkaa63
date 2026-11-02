@@ -214,6 +214,8 @@ class PortfolioBrowserChecks(unittest.TestCase):
                     for theme in ('light', 'dark'):
                         self.page.locator('.theme-toggle').click()
                         expect(self.page.locator('html')).to_have_attribute('data-theme', theme)
+                        self.assertEqual(self.page.locator('html').evaluate('el => getComputedStyle(el).backgroundColor'),
+                                         'rgb(246, 246, 242)' if theme == 'light' else 'rgb(16, 17, 19)')
                         self.assert_no_overflow()
                     for image in self.page.locator('img[src]').all():
                         image.scroll_into_view_if_needed()

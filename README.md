@@ -53,7 +53,11 @@ To preview locally from the repository root:
 python3 -m http.server 4173 --directory docs
 ```
 
-Open `http://localhost:4173`. The site uses relative asset URLs and also works under the GitHub Pages project path `/peetkaa63/`. JavaScript progressively adds the mobile menu, section reveals, active section navigation, a screenshot gallery and copying for the Telegram handle and message template. Navigation, project details and contact guidance remain usable without JavaScript; screenshot links then open the original images. The gallery supports Escape, arrow keys and focus return. Project context is based on each repository's README and keeps team credits explicit.
+Open `http://localhost:4173`. The site uses relative asset URLs and also works under the GitHub Pages project path `/peetkaa63/`. JavaScript progressively adds the mobile menu, section reveals, active section navigation, a screenshot gallery and copying for the Telegram handle and message template. Navigation, project details and contact guidance remain usable without JavaScript; screenshot links then open the original images. The gallery supports Escape, arrow keys, horizontal touch/pen swipes and focus return. Vertical and cancelled gestures keep the current image. Project context is based on each repository's README and keeps team credits explicit.
+
+The gallery links each screenshot to its case study, or to the source repository when no case is available. It reserves the image area during loading, reports failures and offers a retry. Each selection owns its loading callbacks, so slow responses from an older selection or a closed dialog cannot overwrite the current view. Changing between mobile and desktop navigation transfers keyboard focus to the equivalent visible control.
+
+Clipboard writes are serialized across the copy controls. While an OS write is pending, the controls expose `aria-disabled` and the active control exposes `aria-busy`; keyboard focus stays in place. After success or failure, copying is available again. Editing the brief while copying still produces the existing warning to copy the updated text.
 
 The homepage introduces the real Commit to Learn request path with a four-stage code explorer. Native radio controls switch between pinned source excerpts using CSS, including without JavaScript; arrow keys change the selected stage. It is a reading aid for the team codebase, not a running API demo.
 

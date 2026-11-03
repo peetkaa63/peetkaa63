@@ -30,8 +30,10 @@
   if (menuButton && menu) {
     menuButton.hidden = false;
     menu.hidden = true;
+    let lastNavigationFocus;
 
     const closeMenu = (restoreFocus = false) => {
+      lastNavigationFocus = undefined;
       menu.hidden = true;
       menuButton.setAttribute('aria-expanded', 'false');
       menuButton.setAttribute('aria-label', 'Открыть меню');
@@ -54,9 +56,25 @@
       if (!menu.hidden && !event.target.closest('.site-header')) closeMenu();
     });
     document.addEventListener('focusin', (event) => {
+      lastNavigationFocus = event.target.closest('#mobile-nav a, .desktop-nav a');
       if (!menu.hidden && !event.target.closest('.site-header')) closeMenu();
     });
-    mobile.addEventListener('change', () => closeMenu());
+    mobile.addEventListener('change', () => {
+      // CSS can blur a link before matchMedia's change event is dispatched.
+      const active = document.activeElement === document.body
+        ? (lastNavigationFocus || document.activeElement)
+        : document.activeElement;
+      const fromMobileMenu = menu.contains(active);
+      const fromDesktopMenu = active.closest('.desktop-nav');
+      closeMenu();
+      if (!mobile.matches && fromMobileMenu) {
+        const equivalent = [...document.querySelectorAll('.desktop-nav a')]
+          .find((link) => link.hash === active.hash);
+        (equivalent || document.querySelector('.header-contact') || menuButton).focus();
+      } else if (mobile.matches && fromDesktopMenu) {
+        menuButton.focus();
+      }
+    });
   }
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -124,28 +142,43 @@
   });
 
   if (window.isSecureContext && navigator.clipboard?.writeText) {
-    document.querySelectorAll('[data-copy]').forEach((copyButton) => {
+    const copyButtons = [...document.querySelectorAll('[data-copy]')];
+    let copyPending = false;
+    copyButtons.forEach((copyButton) => {
       const feedback = document.getElementById(copyButton.dataset.feedback);
       if (!feedback) return;
       copyButton.hidden = false;
-      let copyAttempt = 0;
       copyButton.addEventListener('click', async () => {
-        const attempt = ++copyAttempt;
+        // A pending OS write cannot be cancelled. Serialize writes across controls.
+        if (copyPending || copyButton.getAttribute('aria-disabled') === 'true') return;
+        copyPending = true;
+        const disabledStates = copyButtons.map((button) => [button, button.getAttribute('aria-disabled')]);
+        copyButtons.forEach((button) => button.setAttribute('aria-disabled', 'true'));
+        copyButton.setAttribute('aria-busy', 'true');
+        const label = copyButton.matches('.brief-copy') ? copyButton.textContent : null;
+        if (label) copyButton.textContent = 'Копирование…';
+        feedback.textContent = '';
         const copiedText = copyButton.dataset.copy;
         try {
           await navigator.clipboard.writeText(copiedText);
-          if (attempt !== copyAttempt) return;
           feedback.textContent = copyButton.dataset.copy === copiedText
             ? copyButton.dataset.success
             : 'Сообщение изменилось. Скопируйте актуальный текст.';
         } catch {
-          if (attempt !== copyAttempt) return;
           feedback.textContent = copyButton.dataset.error || (copiedText === '@rove63'
             ? 'Скопируйте имя вручную: @rove63'
             : 'Копирование недоступно. Используйте пункты выше как шаблон.');
           const fallback = document.getElementById(copyButton.dataset.copyFallback);
           fallback?.focus();
           fallback?.select();
+        } finally {
+          copyPending = false;
+          disabledStates.forEach(([button, value]) => {
+            if (value === null) button.removeAttribute('aria-disabled');
+            else button.setAttribute('aria-disabled', value);
+          });
+          copyButton.removeAttribute('aria-busy');
+          if (label) copyButton.textContent = label;
         }
       });
     });
@@ -216,19 +249,93 @@
     const image = viewer.querySelector('.viewer-image');
     const title = viewer.querySelector('#viewer-title');
     const counter = viewer.querySelector('.viewer-counter');
+    const imageWrap = viewer.querySelector('.viewer-image-wrap');
+    const placeholder = viewer.querySelector('.viewer-placeholder');
+    const feedback = viewer.querySelector('.viewer-load-feedback');
+    const status = viewer.querySelector('.viewer-status');
+    const retry = viewer.querySelector('.viewer-retry');
+    const project = viewer.querySelector('.viewer-project');
     let selected = 0;
     let opener;
+    let loadVersion = 0;
+    let gesture;
 
     const showPreview = (index) => {
       selected = (index + previews.length) % previews.length;
       const preview = previews[selected];
       const source = preview.querySelector('img');
-      image.src = preview.href;
+      const card = preview.closest('.project-card');
+      const caseLink = card.querySelector('.project-case-link');
+      const projectSource = caseLink || card.querySelector('.project-heading a');
+      project.href = projectSource.href;
+      project.querySelector('span').textContent = caseLink ? 'Разбор проекта' : 'Репозиторий проекта';
+      if (caseLink) {
+        project.removeAttribute('target');
+        project.removeAttribute('rel');
+        project.removeAttribute('aria-label');
+      } else {
+        project.target = '_blank';
+        project.rel = 'noopener noreferrer';
+        project.setAttribute('aria-label', 'Репозиторий проекта, новая вкладка');
+      }
+      image.hidden = true;
+      placeholder.hidden = false;
       image.alt = source.alt;
       viewer.querySelector('.viewer-original').href = preview.href;
       title.textContent = preview.closest('.project-card').querySelector('.project-heading a').firstChild.textContent;
       counter.textContent = `${selected + 1} из ${previews.length}`;
+      const version = ++loadVersion;
+      feedback.hidden = false;
+      retry.hidden = true;
+      status.textContent = 'Загружаю скриншот…';
+      imageWrap.setAttribute('aria-busy', 'true');
+      const loadingImage = new Image();
+      const failLoad = () => {
+        if (version !== loadVersion) return;
+        imageWrap.setAttribute('aria-busy', 'false');
+        status.textContent = 'Не удалось загрузить скриншот. Повторите попытку или откройте проект.';
+        retry.hidden = false;
+      };
+      loadingImage.onload = async () => {
+        if (version !== loadVersion) return;
+        image.src = loadingImage.src;
+        try {
+          if (image.decode) await image.decode();
+        } catch {
+          failLoad();
+          return;
+        }
+        if (version !== loadVersion) return;
+        image.hidden = false;
+        placeholder.hidden = true;
+        imageWrap.setAttribute('aria-busy', 'false');
+        status.textContent = '';
+        feedback.hidden = true;
+      };
+      loadingImage.onerror = failLoad;
+      loadingImage.src = preview.href;
     };
+    retry.addEventListener('click', () => {
+      showPreview(selected);
+      // Retry disappears while loading; keep focus on a visible dialog control.
+      viewer.querySelector('.viewer-close').focus();
+    });
+    imageWrap.addEventListener('pointerdown', (event) => {
+      gesture = event.isPrimary && ['touch', 'pen'].includes(event.pointerType)
+        ? { id: event.pointerId, x: event.clientX, y: event.clientY }
+        : undefined;
+    });
+    imageWrap.addEventListener('pointercancel', () => { gesture = undefined; });
+    imageWrap.addEventListener('pointerup', (event) => {
+      const start = gesture;
+      gesture = undefined;
+      if (!start || start.id !== event.pointerId) return;
+      const dx = event.clientX - start.x;
+      const dy = event.clientY - start.y;
+      if (Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        showPreview(selected + (dx < 0 ? 1 : -1));
+      }
+    });
     previews.forEach((preview, index) => {
       preview.setAttribute('aria-haspopup', 'dialog');
       preview.setAttribute('aria-label', preview.getAttribute('aria-label').replace(' в новой вкладке', ''));
@@ -257,6 +364,9 @@
       if (event.target === viewer && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) viewer.close();
     });
     viewer.addEventListener('close', () => {
+      loadVersion += 1;
+      gesture = undefined;
+      imageWrap.setAttribute('aria-busy', 'false');
       document.documentElement.classList.remove('viewer-open');
       opener?.focus({ preventScroll: true });
     });

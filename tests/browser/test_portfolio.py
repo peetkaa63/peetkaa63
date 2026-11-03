@@ -143,22 +143,48 @@ class PortfolioBrowserChecks(unittest.TestCase):
         self.page.evaluate('document.getElementById("brief-goal").value="Восстановленная задача"; window.dispatchEvent(new PageTransitionEvent("pageshow", {persisted: true}))')
         self.assertIn('Восстановленная задача', self.page.locator('#brief-message').input_value())
 
-    def test_newer_clipboard_attempt_owns_the_feedback(self):
+    def test_clipboard_writes_are_serialized_and_keep_keyboard_focus(self):
         self.page.add_init_script('''
-            window.copyResolvers = [];
+            window.copyWrites = [];
             Object.defineProperty(navigator, 'clipboard', {value: {
-                writeText: () => new Promise(resolve => window.copyResolvers.push(resolve))
+                writeText: text => new Promise(resolve => window.copyWrites.push({text, finish: () => {
+                    window.clipboardContent = text; resolve();
+                }}))
             }});
         ''')
         self.visit('#project-brief')
         self.page.locator('#brief-goal').fill('Первый текст')
-        self.page.locator('.brief-copy').click()
+        self.page.locator('.brief-copy').focus()
+        self.page.keyboard.press('Enter')
+        expect(self.page.locator('.brief-copy')).to_be_focused()
+        expect(self.page.locator('.brief-copy')).to_be_disabled()
+        expect(self.page.locator('.brief-copy')).to_have_attribute('aria-busy', 'true')
         self.page.locator('#brief-goal').fill('Второй текст')
+        # A second click/keypress must not start another uncancellable OS write.
+        self.page.locator('.brief-copy').dispatch_event('click')
+        self.page.locator('[data-copy="@rove63"]').dispatch_event('click')
+        self.assertEqual(self.page.evaluate('window.copyWrites.length'), 1)
+        self.page.evaluate('window.copyWrites[0].finish()')
+        expect(self.page.locator('#brief-feedback')).to_contain_text('Сообщение изменилось')
+        expect(self.page.locator('.brief-copy')).to_be_enabled()
         self.page.locator('.brief-copy').click()
-        self.page.evaluate('window.copyResolvers[1]()')
+        self.page.evaluate('window.copyWrites[1].finish()')
         expect(self.page.locator('#brief-feedback')).to_contain_text('Сообщение скопировано')
-        self.page.evaluate('window.copyResolvers[0]()')
-        expect(self.page.locator('#brief-feedback')).to_contain_text('Сообщение скопировано')
+        self.assertEqual(self.page.evaluate('window.clipboardContent'), self.page.locator('#brief-message').input_value())
+
+    def test_navigation_focus_follows_viewport_changes(self):
+        self.page.set_viewport_size({'width': 390, 'height': 844})
+        self.visit()
+        self.page.locator('.menu-toggle').click()
+        self.page.locator('#mobile-nav a[href="#services"]').focus()
+        self.page.set_viewport_size({'width': 1000, 'height': 844})
+        expect(self.page.locator('.desktop-nav a[href="#services"]')).to_be_focused()
+        self.page.set_viewport_size({'width': 390, 'height': 844})
+        expect(self.page.locator('.menu-toggle')).to_be_focused()
+        self.page.locator('.menu-toggle').click()
+        self.page.locator('#mobile-nav a[href="#contact"]').focus()
+        self.page.set_viewport_size({'width': 1000, 'height': 844})
+        expect(self.page.locator('.header-contact')).to_be_focused()
 
     def test_active_case_navigation_survives_unlisted_section(self):
         self.visit('projects/testops-copilot.html')
@@ -188,6 +214,8 @@ class PortfolioBrowserChecks(unittest.TestCase):
                     for theme in ('light', 'dark'):
                         self.page.locator('.theme-toggle').click()
                         expect(self.page.locator('html')).to_have_attribute('data-theme', theme)
+                        self.assertEqual(self.page.locator('html').evaluate('el => getComputedStyle(el).backgroundColor'),
+                                         'rgb(246, 246, 242)' if theme == 'light' else 'rgb(16, 17, 19)')
                         self.assert_no_overflow()
                     for image in self.page.locator('img[src]').all():
                         image.scroll_into_view_if_needed()
@@ -286,6 +314,105 @@ class PortfolioBrowserChecks(unittest.TestCase):
         expect(self.page.locator('.project-viewer')).to_be_hidden()
         expect(preview).to_be_focused()
 
+    def test_gallery_reports_load_failure_and_can_retry(self):
+        self.page.route('**/assets/projects/testops.webp', lambda route: route.abort())
+        self.visit()
+        self.page.locator('.project-media').first.click()
+        expect(self.page.locator('.viewer-status')).to_contain_text('Не удалось загрузить')
+        expect(self.page.locator('.viewer-image')).to_be_hidden()
+        expect(self.page.locator('.viewer-retry')).to_be_visible()
+        expect(self.page.locator('.viewer-project')).to_have_attribute('href', self.base + 'projects/testops-copilot.html')
+        self.assert_accessible()
+        self.page.unroute('**/assets/projects/testops.webp')
+        self.page.locator('.viewer-retry').click()
+        expect(self.page.locator('.viewer-close')).to_be_focused()
+        expect(self.page.locator('.viewer-image')).to_be_visible()
+        self.assertTrue(self.page.locator('.viewer-image').evaluate('img => img.complete && img.naturalWidth > 0'))
+        expect(self.page.locator('.viewer-load-feedback')).to_be_hidden()
+        expect(self.page.locator('.viewer-image-wrap')).to_have_attribute('aria-busy', 'false')
+
+    def test_gallery_project_link_tracks_selected_image(self):
+        self.visit()
+        self.page.locator('.project-media').first.click()
+        expect(self.page.locator('.viewer-project')).to_have_attribute('href', self.base + 'projects/testops-copilot.html')
+        self.page.locator('.viewer-next').click()
+        expect(self.page.locator('.viewer-project')).to_have_attribute('href', 'https://github.com/peetkaa63/smart-warehouse')
+        expect(self.page.locator('.viewer-project')).to_have_attribute('target', '_blank')
+        expect(self.page.locator('.viewer-project')).to_have_attribute('rel', 'noopener noreferrer')
+        self.page.locator('.viewer-next').click()
+        expect(self.page.locator('.viewer-project')).not_to_have_attribute('target', '_blank')
+        self.page.locator('.viewer-project').click()
+        expect(self.page).to_have_url(self.base + 'projects/commit-to-learn.html')
+
+    def test_gallery_layout_remains_usable_on_small_screens(self):
+        for width, height in ((320, 568), (390, 320)):
+            for theme in ('dark', 'light'):
+                with self.subTest(width=width, height=height, theme=theme):
+                    self.page.set_viewport_size({'width': width, 'height': height})
+                    self.visit()
+                    if self.page.locator('html').get_attribute('data-theme') != theme:
+                        self.page.locator('.theme-toggle').click()
+                    self.page.locator('.project-media').first.click()
+                    expect(self.page.locator('.viewer-image')).to_be_visible()
+                    self.assertTrue(self.page.locator('.project-viewer').evaluate('el => el.scrollWidth <= el.clientWidth && el.getBoundingClientRect().top >= 0 && el.getBoundingClientRect().bottom <= innerHeight'))
+                    self.page.locator('.viewer-next').click()
+                    expect(self.page.locator('.viewer-counter')).to_have_text('2 из 3')
+                    self.page.keyboard.press('Escape')
+                    expect(self.page.locator('.project-media').first).to_be_focused()
+
+    def test_gallery_ignores_late_image_from_previous_selection(self):
+        pending = []
+        self.page.route('**/*?gallery-delay=1', lambda route: pending.append(route))
+        self.visit()
+        self.page.locator('.project-media').first.evaluate('a => a.href += "?gallery-delay=1"')
+        self.page.locator('.project-media').first.click()
+        expect(self.page.locator('.viewer-status')).to_contain_text('Загружаю')
+        expect(self.page.locator('.viewer-image-wrap')).to_have_attribute('aria-busy', 'true')
+        self.page.wait_for_function('document.querySelector(".viewer-image").hidden')
+        self.page.locator('.viewer-next').click()
+        expect(self.page.locator('.viewer-image')).to_be_visible()
+        self.assertEqual(len(pending), 1)
+        pending[0].fulfill(path=str(ROOT / 'docs/assets/projects/testops.webp'), content_type='image/webp')
+        self.page.evaluate('() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))')
+        expect(self.page.locator('#viewer-title')).to_have_text('Smart Warehouse')
+        expect(self.page.locator('.viewer-image')).to_have_attribute('src', self.base + 'assets/projects/warehouse.webp')
+
+    def test_gallery_swipe_filters_vertical_mouse_and_cancelled_gestures(self):
+        self.page.set_viewport_size({'width': 390, 'height': 844})
+        self.visit()
+        self.page.locator('.project-media').first.click()
+        wrap = self.page.locator('.viewer-image-wrap')
+        def gesture(dx, dy, pointer='touch', cancelled=False):
+            base = {'pointerId': 1, 'pointerType': pointer, 'isPrimary': True}
+            wrap.dispatch_event('pointerdown', {**base, 'clientX': 180, 'clientY': 180})
+            if cancelled:
+                wrap.dispatch_event('pointercancel', base)
+            wrap.dispatch_event('pointerup', {**base, 'clientX': 180 + dx, 'clientY': 180 + dy})
+        gesture(-100, 0)
+        expect(self.page.locator('.viewer-counter')).to_have_text('2 из 3')
+        gesture(100, 0)
+        expect(self.page.locator('.viewer-counter')).to_have_text('1 из 3')
+        gesture(-80, 100)
+        gesture(-100, 0, pointer='mouse')
+        gesture(-100, 0, cancelled=True)
+        expect(self.page.locator('.viewer-counter')).to_have_text('1 из 3')
+
+    def test_gallery_late_error_after_close_does_not_affect_reopened_viewer(self):
+        pending = []
+        self.page.route('**/*?gallery-delay=1', lambda route: pending.append(route))
+        self.visit()
+        self.page.locator('.project-media').first.evaluate('a => a.href += "?gallery-delay=1"')
+        self.page.locator('.project-media').first.click()
+        expect(self.page.locator('.viewer-status')).to_contain_text('Загружаю')
+        self.page.keyboard.press('Escape')
+        self.page.locator('.project-media').nth(1).click()
+        expect(self.page.locator('.viewer-image')).to_be_visible()
+        self.assertEqual(len(pending), 1)
+        pending[0].abort()
+        self.page.evaluate('() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))')
+        expect(self.page.locator('.viewer-load-feedback')).to_be_hidden()
+        expect(self.page.locator('#viewer-title')).to_have_text('Smart Warehouse')
+
     def test_clipboard_failure_offers_manual_selection(self):
         self.page.add_init_script('Object.defineProperty(navigator, "clipboard", {value: {writeText: () => Promise.reject(new Error("Denied"))}})')
         self.visit()
@@ -294,6 +421,7 @@ class PortfolioBrowserChecks(unittest.TestCase):
         self.page.locator('.brief-copy').click()
         expect(self.page.locator('#brief-feedback')).to_contain_text('скопируйте вручную')
         expect(self.page.locator('#brief-message')).to_be_focused()
+        expect(self.page.locator('.brief-copy')).to_be_enabled()
         self.assertTrue(self.page.locator('#brief-message').evaluate('el => el.selectionEnd - el.selectionStart === el.value.length'))
 
     def test_copy_uses_current_message_and_detects_later_edits(self):

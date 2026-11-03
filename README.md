@@ -63,6 +63,10 @@ The gallery links each screenshot to its case study, or to the source repository
 
 Clipboard writes are serialized across the copy controls. While an OS write is pending, the controls expose `aria-disabled` and the active control exposes `aria-busy`; keyboard focus stays in place. After success or failure, copying is available again. Editing the brief while copying still produces the existing warning to copy the updated text.
 
+The homepage leads with my name, development focus, education and selected projects. Service cards link to concrete project examples, while the about section groups technologies by backend/data, interfaces/Telegram and engineering practice. Contact copy supports project enquiries and team or job proposals without claiming availability or a response time.
+
+The “Печать / сохранить в PDF” button opens the browser's native print dialog. The homepage's print-only stylesheet reuses the profile, education, stack and all five project cards, and puts GitHub/Telegram URLs below the name. It removes navigation, screenshots, forms and interactive controls, and uses a white background in either theme. The browser's Print command also works without JavaScript; the button is then hidden. No separate copy of the CV or PDF file needs to be maintained.
+
 The homepage introduces the real Commit to Learn request path with a four-stage code explorer. Native radio controls switch between pinned source excerpts using CSS, including without JavaScript; arrow keys change the selected stage. It is a reading aid for the team codebase, not a running API demo.
 
 A header button switches between the original dark theme and a light palette on every page. Only the light/dark preference is saved under `portfolio-theme` in localStorage. A small local head script restores it before paint and keeps open tabs and restored pages in sync. Storage errors do not prevent switching in the current page. Without JavaScript the original dark theme remains available.

@@ -1,0 +1,62 @@
+@page { size: A4; margin: 14mm; }
+
+/* Use the same content for a compact CV, independent of the chosen screen theme. */
+html, body { margin: 0; padding: 0; background: white !important; color: #172033 !important; font-size: 9pt; }
+body * { color: #172033 !important; background: transparent !important; box-shadow: none !important; text-shadow: none !important; animation: none !important; transition: none !important; }
+.container { width: 100%; max-width: none; }
+.site-header, .skip-link, .backend-console, .hero-actions, .hero-contact-note,
+.hero-bottom, .stack-strip, .project-jump-nav, .project-media, .project-product-mark,
+.project-index, .project-details, .project-case-link, .project-footnote,
+#projects > .text-link, #services, .about-grid, .process-list, .profile-print,
+.contact-topline, .contact-title, .contact-description, .copy-button, .copy-feedback,
+.contact-brief, #contact, .site-footer, .project-viewer, .section-kicker { display: none !important; }
+.reveal, .motion-ready .reveal { opacity: 1 !important; transform: none !important; }
+main { display: flex; flex-direction: column; }
+#top { order: 0; }
+#about { order: 1; }
+#projects { order: 2; }
+.hero { display: block; padding: 0 0 8pt; }
+.hero-label { margin-bottom: 2pt; font-size: 6pt; }
+.hero-title { margin-bottom: 3pt; font-size: 28pt; line-height: 1; letter-spacing: -.05em; }
+.hero-title br { display: none; }
+.hero-role { margin-bottom: 2pt; font-size: 11pt; }
+.profile-print-links { display: flex; flex-wrap: wrap; gap: 6pt 18pt; margin: 6pt 0; font-size: 8pt; }
+.hero-description { display: none; }
+.hero-facts { display: flex; gap: 30pt; margin-top: 3pt; padding-top: 3pt; border-color: #b6bdc8; }
+.hero-facts dt { display: none; }
+.hero-facts dd { font-size: 9pt; }
+.hero-facts a { min-height: 0; }
+svg { display: none !important; }
+.section { padding: 0; border: 0 !important; }
+.skills-section { margin: 0 0 8pt; padding: 0; border: 0; }
+.skills-heading { margin-bottom: 4pt; }
+.skills-heading h3 { font-size: 13pt; }
+.skills-heading p { font-size: 8pt; }
+.skills-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12pt; }
+.skills-grid > div { padding: 0; border: 0; }
+.skills-grid dt { margin-bottom: 4pt; font-size: 8pt; }
+.skills-grid dt span { display: none; }
+.skills-grid dd { font-size: 8pt; line-height: 1.5; }
+.section-heading { display: block; margin-bottom: 10pt; }
+.section-title { font-size: 18pt; line-height: 1.1; }
+.section-title br { display: none; }
+.section-intro { display: none; }
+.projects-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10pt; }
+.project-card, .project-featured { display: block; grid-column: auto; break-inside: avoid; border: 1px solid #b6bdc8; border-radius: 6pt; transform: none !important; }
+.projects-grid > :last-child { grid-column: 1 / -1; }
+.project-body, .project-featured .project-body { padding: 10pt; }
+.project-topline { margin-bottom: 6pt; }
+.project-category { max-width: none; font-size: 6.5pt; letter-spacing: .04em; }
+.project-heading, .project-product .project-heading { margin-bottom: 5pt; font-size: 15pt; }
+.project-heading > a { display: block; min-height: 0; }
+.project-link { display: none; }
+.project-product-heading { display: block; margin-bottom: 8pt; }
+.project-product-name { font-size: 7pt; }
+.project-summary, .project-product .project-summary { margin-bottom: 8pt; font-size: 8pt; line-height: 1.5; }
+.project-contribution { margin-bottom: 8pt; padding-left: 8pt; border-color: #79879e; }
+.project-contribution-title { margin-bottom: 3pt; font-size: 8pt; }
+.project-contribution p:last-child { font-size: 8pt; line-height: 1.5; }
+.project-tags { gap: 4pt; margin-bottom: 8pt; }
+.project-tags > * { padding: 2pt 4pt; border-color: #b6bdc8; font-size: 7pt; }
+.project-role { padding-top: 6pt; border-color: #b6bdc8; font-size: 7pt; }
+.project-access { gap: 4pt; }

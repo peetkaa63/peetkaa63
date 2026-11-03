@@ -297,6 +297,10 @@ class PortfolioBrowserChecks(unittest.TestCase):
         expect(self.page.locator('#mobile-nav')).to_be_hidden()
         expect(self.page.locator('#projects')).to_be_focused()
         self.page.keyboard.press('Tab')
+        expect(self.page.locator('.project-jump-nav a').first).to_be_focused()
+        self.page.keyboard.press('Enter')
+        expect(self.page.locator('#studmeet-project')).to_be_focused()
+        self.page.keyboard.press('Tab')
         expect(self.page.locator('#studmeet-project summary')).to_be_focused()
         self.page.keyboard.press('Enter')
         expect(self.page.locator('#studmeet-project .project-detail-content')).to_be_visible()
@@ -308,6 +312,28 @@ class PortfolioBrowserChecks(unittest.TestCase):
         self.page.keyboard.press('Escape')
         expect(button).to_be_focused()
         expect(button).to_have_attribute('aria-expanded', 'false')
+
+    def test_project_index_moves_focus_and_keeps_titles_visible(self):
+        for width in (320, 600, 760, 1440):
+            with self.subTest(width=width):
+                self.page.set_viewport_size({'width': width, 'height': 900})
+                self.visit()
+                for link in self.page.locator('.project-jump-nav a').all():
+                    target = self.page.locator(link.get_attribute('href'))
+                    link.click()
+                    expect(target).to_be_focused()
+                    self.assertTrue(target.evaluate('''el => {
+                        const r = el.getBoundingClientRect();
+                        return r.top >= document.querySelector('.site-header').getBoundingClientRect().bottom;
+                    }'''))
+                for title in self.page.locator('.project-product .project-heading').all():
+                    self.assertTrue(title.evaluate('''el => {
+                        const range = document.createRange(); range.selectNodeContents(el);
+                        const text = range.getBoundingClientRect();
+                        const box = el.getBoundingClientRect();
+                        return text.left >= box.left - 1 && text.right <= box.right + 1;
+                    }'''), 'Full product names must fit inside their heading')
+                self.assert_no_overflow()
 
     def test_gallery_keyboard_navigation_and_focus_return(self):
         self.visit()
@@ -504,6 +530,14 @@ class PortfolioBrowserChecks(unittest.TestCase):
             page.locator('label[for=backend-data]').click()
             expect(page.locator('#backend-panel-data')).to_be_visible()
             expect(page.locator('#backend-panel-route')).to_be_hidden()
+            for link in page.locator('.project-jump-nav a').all():
+                target = link.get_attribute('href')
+                link.click()
+                self.assertTrue(page.url.endswith(target))
+                self.assertTrue(page.locator(target).evaluate('''el => {
+                    const r = el.getBoundingClientRect();
+                    return r.top >= document.querySelector('.site-header').getBoundingClientRect().bottom && r.top < innerHeight;
+                }'''))
             page.locator('[data-open-brief]').click()
             page.locator('#project-brief').press('Enter')
             expect(page.locator('.brief-instructions')).to_be_visible()

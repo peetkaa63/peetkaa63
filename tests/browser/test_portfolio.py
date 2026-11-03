@@ -86,6 +86,8 @@ class PortfolioBrowserChecks(unittest.TestCase):
                             self.page.locator('.theme-toggle').click()
                         if path == 'index.html':
                             self.page.locator('[data-open-brief]').click()
+                            self.page.locator('#studmeet-project details').evaluate('el => el.open = true')
+                            self.page.locator('#predlozhka-project details').evaluate('el => el.open = true')
                         self.assert_accessible()
                         if path == 'index.html' and width == 390:
                             self.page.locator('.project-media').first.click()
@@ -295,7 +297,13 @@ class PortfolioBrowserChecks(unittest.TestCase):
         expect(self.page.locator('#mobile-nav')).to_be_hidden()
         expect(self.page.locator('#projects')).to_be_focused()
         self.page.keyboard.press('Tab')
-        expect(self.page.locator('.project-media').first).to_be_focused()
+        expect(self.page.locator('#studmeet-project summary')).to_be_focused()
+        self.page.keyboard.press('Enter')
+        expect(self.page.locator('#studmeet-project .project-detail-content')).to_be_visible()
+        self.page.keyboard.press('Tab')
+        expect(self.page.locator('#predlozhka-project summary')).to_be_focused()
+        self.page.keyboard.press('Enter')
+        expect(self.page.locator('#predlozhka-project .project-detail-content')).to_be_visible()
         button.click()
         self.page.keyboard.press('Escape')
         expect(button).to_be_focused()

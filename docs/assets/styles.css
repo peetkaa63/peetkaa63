@@ -303,6 +303,20 @@ a:hover .project-link, a.project-link:hover { transform: rotate(8deg); border-co
 .project-role strong { color: #d6d8e2; font-weight: 600; }
 .project-footnote { max-width: 920px; margin: 24px 0 0; color: #9296a2; font-size: 12px; line-height: 1.8; }
 .project-footnote a { color: #b2bdff; text-decoration: underline; text-underline-offset: 3px; }
+.project-product .project-body { height: 100%; }
+.project-product-heading { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+.project-product-heading > div { min-width: 0; }
+.project-product .project-heading { margin-bottom: 4px; }
+.project-product-mark { display: inline-flex; flex: 0 0 52px; align-items: center; justify-content: center; width: 52px; height: 52px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-raised); color: var(--accent-hover); }
+.project-product-name { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.7; }
+.project-product .project-summary { margin-bottom: 22px; font-size: 14px; }
+.project-contribution { margin-bottom: 24px; padding-left: 16px; border-left: 2px solid var(--accent); }
+.project-contribution-title { margin-bottom: 6px; color: var(--text); font-size: 12px; font-weight: 750; }
+.project-contribution p:last-child { margin-bottom: 0; color: var(--muted); font-size: 13px; line-height: 1.85; }
+.project-access { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.project-access > span:last-child { display: inline-flex; align-items: center; gap: 6px; }
+.project-features { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; line-height: 1.85; }
+.project-features li + li { margin-top: 8px; }
 
 .services-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
 .service-card { position: relative; min-width: 0; padding: 30px 28px; border: 1px solid var(--border); border-radius: var(--radius); background: transparent; transition: background 250ms ease, border-color 250ms ease, transform 250ms ease; }

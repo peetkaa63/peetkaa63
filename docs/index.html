@@ -146,9 +146,43 @@ next();</code></pre>
     <section class="section container" id="projects" aria-labelledby="projects-title">
       <div class="section-heading reveal">
         <div><p class="section-kicker"><span>01 /</span> Избранные работы</p><h2 class="section-title" id="projects-title">От задачи<br>к интерфейсу.</h2></div>
-        <p class="section-intro">Командные проекты и прототипы из моих репозиториев. Контекст, технологии и исходный код — в каждой карточке.</p>
+        <p class="section-intro">Telegram-сервисы, веб-приложения и командные разработки. Назначение, технологии и контекст участия — в карточках.</p>
       </div>
       <div class="projects-grid">
+        <article class="project-card project-product reveal" id="studmeet-project" aria-labelledby="studmeet-title">
+          <div class="project-body">
+            <div class="project-topline"><span class="project-category">Telegram / Студенческий сервис</span><span class="project-index">01</span></div>
+            <div class="project-product-heading">
+              <span class="project-product-mark" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6m2 3a5 5 0 0 1 3 4v2"/></svg></span>
+              <div><h3 class="project-heading" id="studmeet-title">Студмит</h3><p class="project-product-name">StudHubMeet · бот и Mini App</p></div>
+            </div>
+            <p class="project-summary">Сервис знакомств и общения для студентов: анкеты, поиск, взаимные симпатии и анонимный чат. Telegram-бот и Mini App работают с общей серверной частью.</p>
+            <div class="project-contribution"><p class="project-contribution-title">Мой вклад</p><p>Развитие сценариев бота и Mini App, исправления API и админ-панели. Проверка поиска, взаимных реакций, модерации и устойчивости диалогов.</p></div>
+            <ul class="project-tags" aria-label="Технологии Студмита"><li>Python / aiogram</li><li>Flutter</li><li>Node.js / Express</li><li>PostgreSQL</li></ul>
+            <div class="project-role project-access"><span>Командный проект</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Закрытый код</span></div>
+            <details class="project-details">
+              <summary>Сценарии проекта<span class="sr-only"> Студмит</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+              <div class="project-detail-content"><ul class="project-features"><li>Анкеты и поиск по параметрам пользователя.</li><li>Взаимные реакции, обмен контактами и анонимное общение.</li><li>Mini App на Flutter и административный интерфейс на React.</li><li>Регрессионные проверки связки бота, API и интерфейсов.</li></ul></div>
+            </details>
+          </div>
+        </article>
+        <article class="project-card project-product reveal" id="predlozhka-project" aria-labelledby="predlozhka-title">
+          <div class="project-body">
+            <div class="project-topline"><span class="project-category">Telegram / Публикации и модерация</span><span class="project-index">02</span></div>
+            <div class="project-product-heading">
+              <span class="project-product-mark" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11.5a9.5 9.5 0 0 1 19 0Z"/><path d="m8 11 3 3 5-6"/></svg></span>
+              <div><h3 class="project-heading" id="predlozhka-title">Предложка</h3><p class="project-product-name">Предложка ФУ · Telegram-бот</p></div>
+            </div>
+            <p class="project-summary">Бот для студенческого канала: принимает текст и фото, передаёт посты модераторам и публикует одобренные материалы по расписанию.</p>
+            <div class="project-contribution"><p class="project-contribution-title">Мой вклад</p><p>Развитие модерации, анонимности, очереди публикаций и уведомлений. Исправление ошибок административных диалогов и рассылок, регрессионные проверки.</p></div>
+            <ul class="project-tags" aria-label="Технологии Предложки"><li>Python</li><li>aiogram</li><li>SQLite / aiosqlite</li><li>APScheduler</li></ul>
+            <div class="project-role project-access"><span>Командный проект</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Закрытый код</span></div>
+            <details class="project-details">
+              <summary>Сценарии проекта<span class="sr-only"> Предложка</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+              <div class="project-detail-content"><ul class="project-features"><li>Приём постов с текстом и фото, настройка анонимности.</li><li>Одобрение, отклонение и редактирование модератором.</li><li>Очередь публикаций по времени и уведомления авторов.</li><li>Управление рассылками и повторными попытками доставки.</li></ul></div>
+            </details>
+          </div>
+        </article>
         <article class="project-card project-featured reveal">
           <a class="project-media" href="./assets/projects/testops.webp" target="_blank" rel="noopener noreferrer" aria-label="Открыть скриншот экрана входа TestOps Copilot в новой вкладке">
             <div class="browser-bar" aria-hidden="true"><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-address">TestOps Copilot / login</span><span><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></span></div>
@@ -156,7 +190,7 @@ next();</code></pre>
             <span class="screen-caption">Экран входа · локальный запуск</span>
           </a>
           <div class="project-body">
-            <div class="project-topline"><span class="project-category">AI / QA-инструменты</span><span class="project-index">01</span></div>
+            <div class="project-topline"><span class="project-category">AI / QA-инструменты</span><span class="project-index">03</span></div>
             <h3 class="project-heading"><a href="https://github.com/peetkaa63/TestOps-Copilot" target="_blank" rel="noopener noreferrer">TestOps Copilot<span class="project-link" aria-hidden="true"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></span><span class="sr-only"> — репозиторий, новая вкладка</span></a></h3>
             <p class="project-summary">AI/QA-проект с фоновой генерацией тест-кейсов: запрос проходит через FastAPI, задача выполняется через Celery, а статус и файлы обрабатываются отдельно.</p>
             <ul class="project-tags" aria-label="Технологии TestOps Copilot"><li>Python</li><li>FastAPI</li><li>React</li><li>TypeScript</li></ul>
@@ -179,7 +213,7 @@ next();</code></pre>
             <span class="screen-caption">Экран входа · локальный запуск</span>
           </a>
           <div class="project-body">
-            <div class="project-topline"><span class="project-category">Веб-платформа / Operations</span><span class="project-index">02</span></div>
+            <div class="project-topline"><span class="project-category">Веб-платформа / Operations</span><span class="project-index">04</span></div>
             <h3 class="project-heading"><a href="https://github.com/peetkaa63/smart-warehouse" target="_blank" rel="noopener noreferrer">Smart Warehouse<span class="project-link" aria-hidden="true"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></span><span class="sr-only"> — репозиторий, новая вкладка</span></a></h3>
             <p class="project-summary">Прототип платформы управления складом: учёт товаров, аналитика и автоматизация рабочих процессов.</p>
             <ul class="project-tags" aria-label="Технологии Smart Warehouse"><li>TypeScript</li><li>React</li><li>Node.js</li><li>PostgreSQL</li></ul>
@@ -201,7 +235,7 @@ next();</code></pre>
             <span class="screen-caption">Экран входа · локальный запуск</span>
           </a>
           <div class="project-body">
-            <div class="project-topline"><span class="project-category">EdTech / Образование</span><span class="project-index">03</span></div>
+            <div class="project-topline"><span class="project-category">EdTech / Образование</span><span class="project-index">05</span></div>
             <h3 class="project-heading"><a href="https://github.com/peetkaa63/pcbweb" target="_blank" rel="noopener noreferrer">Commit to Learn<span class="project-link" aria-hidden="true"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></span><span class="sr-only"> — репозиторий, новая вкладка</span></a></h3>
             <p class="project-summary">Командная образовательная платформа. Моя роль — backend-разработка, указанная в README проекта.</p>
             <ul class="project-tags" aria-label="Технологии Commit to Learn"><li>Node.js</li><li>Express</li><li>PostgreSQL</li><li>Prisma</li></ul>
@@ -218,7 +252,7 @@ next();</code></pre>
           </div>
         </article>
       </div>
-      <p class="project-footnote reveal">Описания основаны на документации репозиториев. Это командные проекты и прототипы; ссылки ведут на мои форки. На скриншотах — реальные общедоступные экраны входа.</p>
+      <p class="project-footnote reveal">В карточках указан контекст участия и доступность исходников. Открытые командные репозитории и форки связаны с GitHub; проекты с закрытым кодом представлены описанием и стеком. На скриншотах — реальные общедоступные экраны входа.</p>
       <a class="text-link reveal" href="https://github.com/peetkaa63" target="_blank" rel="noopener noreferrer">Больше кода на GitHub <span aria-hidden="true"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></span><span class="sr-only">, новая вкладка</span></a>
     </section>
 

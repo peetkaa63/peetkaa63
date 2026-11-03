@@ -20,6 +20,8 @@ I work on web applications, Telegram services and automation projects. I'm inter
 
 | Project | What it does | Notes |
 | --- | --- | --- |
+| **Студмит · StudHubMeet** | Student profiles, matching and communication through a Telegram bot and Mini App | Team project; contributed to bot, API, Mini App and admin workflows. Private source code |
+| **Предложка · Предложка ФУ** | Telegram bot for student submissions, moderation and scheduled channel posts | Team project; worked on moderation, publication queues and notification reliability. Private source code |
 | [TestOps Copilot](https://github.com/peetkaa63/TestOps-Copilot) | AI-assisted tooling for software testing and QA workflows | Explore the architecture, services and documentation in the repository |
 | [Smart Warehouse](https://github.com/peetkaa63/smart-warehouse) | Warehouse management platform prototype with dashboards, analytics and automation components | Collaborative / forked project |
 | [Commit to Learn](https://github.com/peetkaa63/pcbweb) | Educational web platform for students and instructors | Team project; repository README credits my backend contribution |
@@ -46,6 +48,8 @@ If you have an idea for a website, web app, Telegram bot or automation, feel fre
 ### Portfolio development
 
 The portfolio is a static, Russian-language site in `docs/`, published with GitHub Pages from `main` → `/docs`. No build step, API keys, paid services, or runtime dependencies are required. Keep the current Pages source when merging changes.
+
+The project section starts with Студмит (StudHubMeet) and Предложка ФУ. Their cards describe the product, stack and contribution, and mark the source as closed. These cards use text and decorative icons; the existing gallery continues to show the three sourced screenshots of the open projects.
 
 To preview locally from the repository root:
 

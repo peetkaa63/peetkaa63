@@ -20,6 +20,8 @@ I work on web applications, Telegram services and automation projects. I'm inter
 
 | Project | What it does | Notes |
 | --- | --- | --- |
+| **StudHubMeet** | Student profiles, matching and communication through a Telegram bot and Mini App | Team project; contributed to bot, API, Mini App and admin workflows. Private source code |
+| **Предложка ФУ** | Telegram bot for student submissions, moderation and scheduled channel posts | Team project; worked on moderation, publication queues and notification reliability. Private source code |
 | [TestOps Copilot](https://github.com/peetkaa63/TestOps-Copilot) | AI-assisted tooling for software testing and QA workflows | Explore the architecture, services and documentation in the repository |
 | [Smart Warehouse](https://github.com/peetkaa63/smart-warehouse) | Warehouse management platform prototype with dashboards, analytics and automation components | Collaborative / forked project |
 | [Commit to Learn](https://github.com/peetkaa63/pcbweb) | Educational web platform for students and instructors | Team project; repository README credits my backend contribution |
@@ -47,6 +49,8 @@ If you have an idea for a website, web app, Telegram bot or automation, feel fre
 
 The portfolio is a static, Russian-language site in `docs/`, published with GitHub Pages from `main` → `/docs`. No build step, API keys, paid services, or runtime dependencies are required. Keep the current Pages source when merging changes.
 
+The project section starts with StudHubMeet and Предложка ФУ. Their cards describe the product, stack and contribution, and mark the source as closed. A keyboard-accessible project index links directly to all five cards and also works without JavaScript. These cards use text and decorative icons; the existing gallery continues to show the three sourced screenshots of the open projects.
+
 To preview locally from the repository root:
 
 ```sh
@@ -58,6 +62,10 @@ Open `http://localhost:4173`. The site uses relative asset URLs and also works u
 The gallery links each screenshot to its case study, or to the source repository when no case is available. It reserves the image area during loading, reports failures and offers a retry. Each selection owns its loading callbacks, so slow responses from an older selection or a closed dialog cannot overwrite the current view. Changing between mobile and desktop navigation transfers keyboard focus to the equivalent visible control.
 
 Clipboard writes are serialized across the copy controls. While an OS write is pending, the controls expose `aria-disabled` and the active control exposes `aria-busy`; keyboard focus stays in place. After success or failure, copying is available again. Editing the brief while copying still produces the existing warning to copy the updated text.
+
+The homepage leads with my name, development focus, education and selected projects. Service cards link to concrete project examples, while the about section groups technologies by backend/data, interfaces/Telegram and engineering practice. Contact copy supports project enquiries and team or job proposals without claiming availability or a response time.
+
+The “Печать / сохранить в PDF” button opens the browser's native print dialog. The homepage's print-only stylesheet reuses the profile, education, stack and all five project cards, and puts GitHub/Telegram URLs below the name. It removes navigation, screenshots, forms and interactive controls, and uses a white background in either theme. The browser's Print command also works without JavaScript; the button is then hidden. No separate copy of the CV or PDF file needs to be maintained.
 
 The homepage introduces the real Commit to Learn request path with a four-stage code explorer. Native radio controls switch between pinned source excerpts using CSS, including without JavaScript; arrow keys change the selected stage. It is a reading aid for the team codebase, not a running API demo.
 

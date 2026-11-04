@@ -86,6 +86,8 @@ class PortfolioBrowserChecks(unittest.TestCase):
                             self.page.locator('.theme-toggle').click()
                         if path == 'index.html':
                             self.page.locator('[data-open-brief]').click()
+                            self.page.locator('#studmeet-project details').evaluate('el => el.open = true')
+                            self.page.locator('#predlozhka-project details').evaluate('el => el.open = true')
                         self.assert_accessible()
                         if path == 'index.html' and width == 390:
                             self.page.locator('.project-media').first.click()
@@ -261,6 +263,32 @@ class PortfolioBrowserChecks(unittest.TestCase):
         expect(self.page.locator('#brief-goal')).to_be_focused()
         self.assertEqual(self.page.url, self.base + '#project-brief')
 
+    def test_print_profile_keeps_resume_content_in_both_themes(self):
+        self.page.add_init_script('window.printCalls = 0; window.print = () => window.printCalls++')
+        self.visit()
+        self.page.locator('[data-print-profile]').click()
+        self.assertEqual(self.page.evaluate('window.printCalls'), 1)
+        for theme in ('dark', 'light'):
+            with self.subTest(theme=theme):
+                self.page.emulate_media(media='screen')
+                if self.page.locator('html').get_attribute('data-theme') != theme:
+                    self.page.locator('.theme-toggle').click()
+                self.page.emulate_media(media='print')
+                expect(self.page.locator('.site-header')).to_be_hidden()
+                expect(self.page.locator('[data-print-profile]')).to_be_hidden()
+                expect(self.page.locator('.contact-brief')).to_be_hidden()
+                expect(self.page.locator('.backend-console')).to_be_hidden()
+                expect(self.page.locator('.hero-title')).to_be_visible()
+                expect(self.page.locator('.hero-facts')).to_be_visible()
+                expect(self.page.locator('.skills-grid')).to_be_visible()
+                expect(self.page.locator('.profile-print-links a')).to_have_count(2)
+                expect(self.page.locator('.profile-print-links')).to_be_visible()
+                for card in self.page.locator('.project-card').all():
+                    expect(card).to_be_visible()
+                    expect(card.locator('.project-summary')).to_be_visible()
+                self.assertEqual(self.page.locator('body').evaluate('el => getComputedStyle(el).backgroundColor'), 'rgb(255, 255, 255)')
+                self.assert_no_overflow()
+
     def test_service_preserves_details_and_preselects_format(self):
         self.visit()
         self.page.locator('[data-brief-type=web]').click()
@@ -295,11 +323,43 @@ class PortfolioBrowserChecks(unittest.TestCase):
         expect(self.page.locator('#mobile-nav')).to_be_hidden()
         expect(self.page.locator('#projects')).to_be_focused()
         self.page.keyboard.press('Tab')
-        expect(self.page.locator('.project-media').first).to_be_focused()
+        expect(self.page.locator('.project-jump-nav a').first).to_be_focused()
+        self.page.keyboard.press('Enter')
+        expect(self.page.locator('#studmeet-project')).to_be_focused()
+        self.page.keyboard.press('Tab')
+        expect(self.page.locator('#studmeet-project summary')).to_be_focused()
+        self.page.keyboard.press('Enter')
+        expect(self.page.locator('#studmeet-project .project-detail-content')).to_be_visible()
+        self.page.keyboard.press('Tab')
+        expect(self.page.locator('#predlozhka-project summary')).to_be_focused()
+        self.page.keyboard.press('Enter')
+        expect(self.page.locator('#predlozhka-project .project-detail-content')).to_be_visible()
         button.click()
         self.page.keyboard.press('Escape')
         expect(button).to_be_focused()
         expect(button).to_have_attribute('aria-expanded', 'false')
+
+    def test_project_index_moves_focus_and_keeps_titles_visible(self):
+        for width in (320, 600, 760, 1440):
+            with self.subTest(width=width):
+                self.page.set_viewport_size({'width': width, 'height': 900})
+                self.visit()
+                for link in self.page.locator('.project-jump-nav a').all():
+                    target = self.page.locator(link.get_attribute('href'))
+                    link.click()
+                    expect(target).to_be_focused()
+                    self.assertTrue(target.evaluate('''el => {
+                        const r = el.getBoundingClientRect();
+                        return r.top >= document.querySelector('.site-header').getBoundingClientRect().bottom;
+                    }'''))
+                for title in self.page.locator('.project-product .project-heading').all():
+                    self.assertTrue(title.evaluate('''el => {
+                        const range = document.createRange(); range.selectNodeContents(el);
+                        const text = range.getBoundingClientRect();
+                        const box = el.getBoundingClientRect();
+                        return text.left >= box.left - 1 && text.right <= box.right + 1;
+                    }'''), 'Full product names must fit inside their heading')
+                self.assert_no_overflow()
 
     def test_gallery_keyboard_navigation_and_focus_return(self):
         self.visit()
@@ -496,10 +556,24 @@ class PortfolioBrowserChecks(unittest.TestCase):
             page.locator('label[for=backend-data]').click()
             expect(page.locator('#backend-panel-data')).to_be_visible()
             expect(page.locator('#backend-panel-route')).to_be_hidden()
+            for link in page.locator('.project-jump-nav a').all():
+                target = link.get_attribute('href')
+                link.click()
+                self.assertTrue(page.url.endswith(target))
+                self.assertTrue(page.locator(target).evaluate('''el => {
+                    const r = el.getBoundingClientRect();
+                    return r.top >= document.querySelector('.site-header').getBoundingClientRect().bottom && r.top < innerHeight;
+                }'''))
             page.locator('[data-open-brief]').click()
             page.locator('#project-brief').press('Enter')
             expect(page.locator('.brief-instructions')).to_be_visible()
             expect(page.locator('.contact-actions a')).to_be_visible()
+            expect(page.locator('[data-print-profile]')).to_be_hidden()
+            page.emulate_media(media='print')
+            expect(page.locator('.profile-print-links')).to_be_visible()
+            expect(page.locator('.skills-grid')).to_be_visible()
+            expect(page.locator('#studmeet-title')).to_be_visible()
+            expect(page.locator('.contact-brief')).to_be_hidden()
         finally:
             context.close()
 

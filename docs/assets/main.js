@@ -2,6 +2,12 @@
   'use strict';
   document.documentElement.classList.add('js-ready');
 
+  const profilePrint = document.querySelector('[data-print-profile]');
+  if (profilePrint && typeof window.print === 'function') {
+    profilePrint.hidden = false;
+    profilePrint.addEventListener('click', () => window.print());
+  }
+
   const menuButton = document.querySelector('.menu-toggle');
   const menu = document.querySelector('#mobile-nav');
   const mobile = window.matchMedia('(max-width: 760px)');

@@ -162,7 +162,7 @@ p { text-wrap: pretty; }
   letter-spacing: -.072em;
   animation: enter-up 900ms 140ms both;
 }
-.hero-title em { color: var(--accent); font-style: normal; font-weight: inherit; }
+.hero-title em, .hero-period { color: var(--accent); font-style: normal; font-weight: inherit; }
 .hero-role { margin-bottom: 18px; color: var(--text); font-size: clamp(16px, 1.55vw, 21px); font-weight: 650; line-height: 1.5; letter-spacing: -.03em; }
 .profile-print-links { display: none; }
 .hero-description {

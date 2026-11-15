@@ -2,6 +2,7 @@
 """Dependency-free pre-deploy sanity checks for the GitHub Pages portfolio."""
 
 from html.parser import HTMLParser
+from html import unescape
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 import re
@@ -123,8 +124,22 @@ def check_sitemap(pages):
         report("sitemap.xml: URLs must match the canonical URLs of every HTML page exactly once")
 
 
+def check_public_identity():
+    """Keep the owner's chosen first-name-only identity in public text assets."""
+    paths = list(DOCS.rglob('*'))
+    cover_source = Path(__file__).with_name('social-cover.html')
+    if cover_source.is_file():
+        paths.append(cover_source)
+    for path in paths:
+        if path.is_file() and path.suffix.lower() in {'.html', '.md', '.svg', '.xml', '.json', '.txt', '.css', '.js'}:
+            if re.search(r'кабанов|kabanov', unescape(path.read_text(encoding='utf-8')), re.IGNORECASE):
+                label = path.relative_to(DOCS) if path.is_relative_to(DOCS) else Path('scripts/social-cover.html')
+                report(f'{label}: public identity must use first name only')
+
+
 def main():
     errors.clear()
+    check_public_identity()
     if not INDEX.is_file():
         report("docs/index.html not found")
     pages = {}

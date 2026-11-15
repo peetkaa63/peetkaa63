@@ -78,6 +78,13 @@ class MultipageChecks(unittest.TestCase):
         self.assertEqual(result, 1)
         self.assertTrue(any('expected one <h1>' in error for error in errors))
 
+    def test_former_surname_in_text_or_metadata_is_reported(self):
+        for text in ('Пётр Кабанов', 'Petr KABANOV', '<span aria-label="Пётр &#1050;абанов">Пётр</span>'):
+            with self.subTest(text=text):
+                result, errors = self.check_site(text)
+                self.assertEqual(result, 1)
+                self.assertTrue(any('first name only' in error for error in errors))
+
 
 class SitemapChecks(unittest.TestCase):
     def check_map(self, xml):

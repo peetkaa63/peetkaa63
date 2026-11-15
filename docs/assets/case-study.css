@@ -83,6 +83,15 @@
 .case-related strong { display: flex; align-items: center; justify-content: space-between; gap: 20px; font-size: clamp(24px, 3vw, 32px); font-weight: 650; line-height: 1.3; letter-spacing: -.04em; }
 .case-related strong svg { flex: 0 0 auto; color: var(--accent-hover); }
 .case-related a > span:last-child { color: var(--muted); font-size: 13px; }
+.product-case .case-hero { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 48px; }
+.product-case .case-hero h1 { font-size: clamp(44px, 5.4vw, 76px); }
+.product-story-preview { min-width: 0; padding: 30px; border: 1px solid var(--border); border-radius: 20px; background: var(--surface); }
+.product-story-preview > .eyebrow { margin-bottom: 24px; }
+.product-story-preview ol { margin: 0; padding: 0; list-style: none; }
+.product-story-preview li { display: flex; gap: 18px; padding-block: 18px; border-top: 1px solid var(--border); }
+.product-story-preview li > span { flex-shrink: 0; color: var(--accent-hover); font-family: ui-monospace, monospace; font-size: 11px; }
+.product-story-preview strong { display: block; font-size: 15px; font-weight: 650; line-height: 1.5; }
+.product-story-preview li p { margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.8; }
 @media (max-width: 1120px) {
   .case-hero, .case-context { gap: 38px; }
   .case-code-panel pre { padding-inline: 22px; }
@@ -91,6 +100,9 @@
   .task-states { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 760px) {
+  .product-case .case-hero { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .product-case .case-hero h1 { font-size: clamp(38px, 10vw, 60px); }
+  .product-story-preview { padding: 24px; }
   .case-breadcrumb { padding-block: 18px; font-size: 11px; }
   .case-hero { grid-template-columns: 1fr; gap: 36px; padding-top: 24px; padding-bottom: 44px; }
   .case-hero h1 { font-size: clamp(64px, 15vw, 92px); }

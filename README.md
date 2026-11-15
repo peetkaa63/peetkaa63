@@ -1,6 +1,6 @@
 <div align="center">
 
-# Petr Kabanov
+# Пётр
 
 **Web apps · Telegram bots · AI automation · Digital products**
 
@@ -47,9 +47,11 @@ If you have an idea for a website, web app, Telegram bot or automation, feel fre
 
 ### Portfolio development
 
+The public identity is **Пётр** only. Keep it consistent across pages, metadata, credits, print output and social images; do not reintroduce a surname. The static validator checks public text assets for accidental regressions.
+
 The portfolio is a static, Russian-language site in `docs/`, published with GitHub Pages from `main` → `/docs`. No build step, API keys, paid services, or runtime dependencies are required. Keep the current Pages source when merging changes.
 
-The project section starts with StudHubMeet and Предложка ФУ. Their cards describe the product, stack and contribution, and mark the source as closed. A keyboard-accessible project index links directly to all five cards and also works without JavaScript. These cards use text and decorative icons; the existing gallery continues to show the three sourced screenshots of the open projects.
+The project section starts with StudHubMeet and Предложка ФУ. Each now has a dedicated case study describing the product, contribution, user journey and stack without publishing private code. Their cards describe the product, stack and contribution, and mark the source as closed. A keyboard-accessible project index links directly to all five cards and also works without JavaScript. These cards use text and decorative icons; the existing gallery continues to show the three sourced screenshots of the open projects.
 
 To preview locally from the repository root:
 
@@ -73,6 +75,8 @@ A header button switches between the original dark theme and a light palette on 
 
 The system's reduced-motion preference disables animation. The footer also offers a manual motion toggle, saved locally when browser storage is available. The head script restores that choice before the first animation; changes sync between open tabs and restored pages. The optional contact brief builds a message from the selected service and any details the visitor enters. Service links preselect a format, open the brief and keep the focused task field visible on short screens. Restored form values refresh the message on `pageshow`. Input is kept only in the current page; it is not persisted, sent to a server, or added to the Telegram URL. Visitors copy the message (or select the preview manually) and send it themselves. Without JavaScript, the contact guide and direct Telegram links remain available.
 
+The share image is generated from `scripts/social-cover.html` using the same local font and first-name identity. After changing it, run `PORTFOLIO_CHROMIUM=/path/to/chromium python3 scripts/render_social_cover.py` with the browser-test dependencies installed. Omit the environment variable to use Playwright’s Chromium. Pages use `assets/social-profile.png` (1200 × 630).
+
 Before opening a Pull Request, run:
 
 ```sh
@@ -82,6 +86,8 @@ node --check docs/assets/theme.js
 ```
 
 Project images show public login screens from the linked repositories, not client work or authenticated dashboards. See [screenshot sources](docs/assets/projects/README.md) for their origin. Manrope is hosted locally under the [SIL Open Font License](docs/assets/fonts/OFL.txt).
+
+The [StudHubMeet case study](docs/projects/studhubmeet.html) and [Предложка ФУ case study](docs/projects/predlozhka-fu.html) explain the product context, contribution, user scenarios and technology choices of the two Telegram projects. They link to each other, return to the corresponding homepage card, and lead to the contact brief. They publish high-level descriptions of the team projects, with no private code, credentials, internal service URLs or fabricated screenshots.
 
 The [Commit to Learn case study](docs/projects/commit-to-learn.html) explains the documented backend role, a verified request path and the data model. Source links are pinned to the reviewed commit. The page describes the team codebase without attributing individual modules to a person or claiming a production result.
 

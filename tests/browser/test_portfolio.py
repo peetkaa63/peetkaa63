@@ -327,9 +327,13 @@ class PortfolioBrowserChecks(unittest.TestCase):
         self.page.keyboard.press('Enter')
         expect(self.page.locator('#studmeet-project')).to_be_focused()
         self.page.keyboard.press('Tab')
+        expect(self.page.locator('#studmeet-project .project-case-link')).to_be_focused()
+        self.page.keyboard.press('Tab')
         expect(self.page.locator('#studmeet-project summary')).to_be_focused()
         self.page.keyboard.press('Enter')
         expect(self.page.locator('#studmeet-project .project-detail-content')).to_be_visible()
+        self.page.keyboard.press('Tab')
+        expect(self.page.locator('#predlozhka-project .project-case-link')).to_be_focused()
         self.page.keyboard.press('Tab')
         expect(self.page.locator('#predlozhka-project summary')).to_be_focused()
         self.page.keyboard.press('Enter')
@@ -360,6 +364,41 @@ class PortfolioBrowserChecks(unittest.TestCase):
                         return text.left >= box.left - 1 && text.right <= box.right + 1;
                     }'''), 'Full product names must fit inside their heading')
                 self.assert_no_overflow()
+
+    def test_telegram_case_studies_connect_work_contribution_and_contact(self):
+        self.page.set_viewport_size({'width': 390, 'height': 844})
+        for key, slug in (('studmeet', 'studhubmeet'), ('predlozhka', 'predlozhka-fu')):
+            with self.subTest(project=key):
+                self.visit()
+                self.page.locator(f'#{key}-project .project-case-link').focus()
+                self.page.keyboard.press('Enter')
+                expect(self.page).to_have_url(self.base + f'projects/{slug}.html')
+                self.page.locator('.case-hero .button').click()
+                expect(self.page.locator('#contribution')).to_be_focused()
+                expect(self.page.locator('#contribution .entity-grid > div')).to_have_count(3)
+                self.page.locator('.case-related a').click()
+                expect(self.page.locator('h1')).to_be_visible()
+                self.page.locator('.case-related a').click()
+                self.page.locator('.case-contact .button').click()
+                expect(self.page).to_have_url(self.base + 'index.html#project-brief')
+                expect(self.page.locator('.brief-builder')).to_be_visible()
+
+    def test_telegram_case_navigation_without_javascript(self):
+        context = self.browser.new_context(java_script_enabled=False, viewport={'width': 320, 'height': 900}, reduced_motion='reduce')
+        try:
+            page = context.new_page()
+            for slug in ('studhubmeet', 'predlozhka-fu'):
+                with self.subTest(project=slug):
+                    page.goto(self.base + f'projects/{slug}.html')
+                    expect(page.locator('#mobile-nav')).to_be_visible()
+                    page.locator('#mobile-nav a[href="#contribution"]').click()
+                    self.assertTrue(page.url.endswith('#contribution'))
+                    expect(page.locator('#contribution .entity-grid')).to_be_visible()
+                    expect(page.locator('#scenario .request-flow li')).to_have_count(4)
+                    page.locator('.case-return').click()
+                    self.assertIn('index.html#', page.url)
+        finally:
+            context.close()
 
     def test_gallery_keyboard_navigation_and_focus_return(self):
         self.visit()

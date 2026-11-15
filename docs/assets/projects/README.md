@@ -8,7 +8,7 @@ These are screenshots of the actual public `/login` pages, rendered locally from
 | `warehouse.webp` | [Smart Warehouse](https://github.com/peetkaa63/smart-warehouse) | `f94721eea274ee2835d82b079bfd75f2a25edcac` |
 | `learn.webp` | [Commit to Learn](https://github.com/peetkaa63/pcbweb) | `1131d863b4cdad217886f525ca6fbe192b75d0c6` |
 
-All three repositories are collaborative forks. Only Commit to Learn explicitly credits Petr Kabanov as Backend Developer. Logos visible within the application screenshots are part of those interfaces; they do not imply personal client relationships or endorsements.
+All three repositories are collaborative forks. Only Commit to Learn explicitly documents my Backend Developer role. Logos visible within the application screenshots are part of those interfaces; they do not imply personal client relationships or endorsements.
 
 ## Capture notes
 

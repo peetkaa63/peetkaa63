@@ -238,8 +238,9 @@ class PortfolioBrowserChecks(unittest.TestCase):
         self.page.locator('.case-related a').click()
         expect(self.page).to_have_url(self.base + 'projects/testops-copilot.html')
         self.page.locator('.case-contact .button').click()
-        expect(self.page).to_have_url(self.base + 'index.html#project-brief')
+        expect(self.page).to_have_url(self.base + 'index.html?format=automation#project-brief')
         expect(self.page.locator('.brief-builder')).to_be_visible()
+        expect(self.page.locator('#brief-type')).to_have_value('automation')
 
     def test_testops_mobile_navigation_and_static_content_without_javascript(self):
         context = self.browser.new_context(java_script_enabled=False, viewport={'width': 390, 'height': 844}, reduced_motion='reduce')
@@ -266,8 +267,11 @@ class PortfolioBrowserChecks(unittest.TestCase):
     def test_print_profile_keeps_resume_content_in_both_themes(self):
         self.page.add_init_script('window.printCalls = 0; window.print = () => window.printCalls++')
         self.visit()
-        self.page.locator('[data-print-profile]').click()
-        self.assertEqual(self.page.evaluate('window.printCalls'), 1)
+        controls = self.page.locator('[data-print-profile]')
+        expect(controls).to_have_count(2)
+        for control in controls.all():
+            control.click()
+        self.assertEqual(self.page.evaluate('window.printCalls'), 2)
         for theme in ('dark', 'light'):
             with self.subTest(theme=theme):
                 self.page.emulate_media(media='screen')
@@ -275,7 +279,8 @@ class PortfolioBrowserChecks(unittest.TestCase):
                     self.page.locator('.theme-toggle').click()
                 self.page.emulate_media(media='print')
                 expect(self.page.locator('.site-header')).to_be_hidden()
-                expect(self.page.locator('[data-print-profile]')).to_be_hidden()
+                for control in controls.all():
+                    expect(control).to_be_hidden()
                 expect(self.page.locator('.contact-brief')).to_be_hidden()
                 expect(self.page.locator('.backend-console')).to_be_hidden()
                 expect(self.page.locator('.hero-title')).to_be_visible()
@@ -310,6 +315,27 @@ class PortfolioBrowserChecks(unittest.TestCase):
         self.page.evaluate('location.hash = "projects"')
         self.page.evaluate('location.hash = "project-brief"')
         expect(self.page.locator('.brief-builder')).to_be_visible()
+
+    def test_case_format_default_preserves_later_changes_and_restored_fields(self):
+        self.visit('?format=web#project-brief')
+        expect(self.page.locator('#brief-type')).to_have_value('web')
+        self.page.locator('#brief-goal').fill('Нужна интеграция с существующим сервисом')
+        self.page.locator('#brief-type').select_option('automation')
+        self.page.evaluate('window.dispatchEvent(new PageTransitionEvent("pageshow", {persisted: true}))')
+        self.page.locator('[data-open-brief]').click()
+        expect(self.page.locator('#brief-type')).to_have_value('automation')
+        expect(self.page.locator('#brief-goal')).to_have_value('Нужна интеграция с существующим сервисом')
+        self.assertIn('Формат: Автоматизация / AI', self.page.locator('#brief-message').input_value())
+
+    def test_case_format_is_validated_and_requires_a_brief_destination(self):
+        for query in ('?format=unknown#project-brief', '?format=%3Cscript%3E#project-brief', '?format=bot'):
+            with self.subTest(query=query):
+                self.visit(query)
+                expect(self.page.locator('#brief-type')).to_have_value('')
+                if '#project-brief' in query:
+                    expect(self.page.locator('.brief-builder')).to_be_visible()
+                else:
+                    expect(self.page.locator('.contact-brief')).not_to_have_attribute('open', '')
 
     def test_mobile_keyboard_navigation_and_escape(self):
         self.page.set_viewport_size({'width': 390, 'height': 844})
@@ -380,8 +406,9 @@ class PortfolioBrowserChecks(unittest.TestCase):
                 expect(self.page.locator('h1')).to_be_visible()
                 self.page.locator('.case-related a').click()
                 self.page.locator('.case-contact .button').click()
-                expect(self.page).to_have_url(self.base + 'index.html#project-brief')
+                expect(self.page).to_have_url(self.base + 'index.html?format=bot#project-brief')
                 expect(self.page.locator('.brief-builder')).to_be_visible()
+                expect(self.page.locator('#brief-type')).to_have_value('bot')
 
     def test_telegram_case_navigation_without_javascript(self):
         context = self.browser.new_context(java_script_enabled=False, viewport={'width': 320, 'height': 900}, reduced_motion='reduce')
@@ -607,7 +634,8 @@ class PortfolioBrowserChecks(unittest.TestCase):
             page.locator('#project-brief').press('Enter')
             expect(page.locator('.brief-instructions')).to_be_visible()
             expect(page.locator('.contact-actions a')).to_be_visible()
-            expect(page.locator('[data-print-profile]')).to_be_hidden()
+            for control in page.locator('[data-print-profile]').all():
+                expect(control).to_be_hidden()
             page.emulate_media(media='print')
             expect(page.locator('.profile-print-links')).to_be_visible()
             expect(page.locator('.skills-grid')).to_be_visible()

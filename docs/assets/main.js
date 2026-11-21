@@ -2,10 +2,11 @@
   'use strict';
   document.documentElement.classList.add('js-ready');
 
-  const profilePrint = document.querySelector('[data-print-profile]');
-  if (profilePrint && typeof window.print === 'function') {
-    profilePrint.hidden = false;
-    profilePrint.addEventListener('click', () => window.print());
+  if (typeof window.print === 'function') {
+    document.querySelectorAll('[data-print-profile]').forEach((button) => {
+      button.hidden = false;
+      button.addEventListener('click', () => window.print());
+    });
   }
 
   const menuButton = document.querySelector('.menu-toggle');
@@ -215,6 +216,12 @@
     };
     briefBuilder.addEventListener('input', updateBrief);
     briefBuilder.addEventListener('change', updateBrief);
+    // Case links provide a default format; entered/restored values stay intact.
+    const incomingFormat = new URLSearchParams(window.location.search).get('format');
+    if (window.location.hash === '#project-brief' && !briefType.value && incomingFormat &&
+        [...briefType.options].some((option) => option.value === incomingFormat)) {
+      briefType.value = incomingFormat;
+    }
     // Browsers may restore form values after deferred scripts have initialized.
     window.addEventListener('pageshow', updateBrief);
     updateBrief();
